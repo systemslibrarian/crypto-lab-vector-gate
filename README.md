@@ -8,11 +8,16 @@ The equation and hash are real: an inspectable TypeScript verifier performs exte
 
 ## Exhibits
 
-1. **The Test Passed** runs five RFC §7.1 verification vectors and asks what matching them establishes.
-2. **The Case the KAT Never Asked** compares canonical, message-corruption and hostile signatures; broken mode requires explicit entry.
-3. **Why S + L Slips Through** compares computed challenges, scalars and both equation sides.
-4. **Repair One Rule** toggles canonical-S enforcement and reruns immutable fixtures.
-5. **What Did the Green Result Prove?** presents five parallel evidence scopes: specification, named case, adversarial case, algorithm validation and module validation.
+1. **The Test Passed** runs five RFC §7.1 verification vectors, asks what matching them establishes, and records your prediction.
+2. **The Case the KAT Never Asked** puts the canonical-S switch next to the three pinned cases, so flipping it is the central act. Broken mode still requires explicit entry, and the same panel is rerun — not a second copy of it. Your prediction from Exhibit 01 is returned to and scored once the hostile signature has actually been accepted.
+3. **Why S + L Slips Through** shows the computed challenge from both signatures, both scalars, L, and both sides of the equation as live values.
+4. **Forge It Yourself** adds k·L to S and re-verifies under the same switch. The page computes how many values of k keep the scalar inside 32 bytes, so the result is a family of forgeries rather than one fixture.
+5. **Byte Surgery** alters any byte of the canonical signature and reports which rule turned the result down — decode, scalar range, or group equation — with the causes kept distinct.
+6. **What Did the Green Result Prove?** asks you to assign each piece of evidence you produced to the kind of claim it supports, then reveals the reference answer and the five parallel evidence scopes: specification, named case, adversarial case, algorithm validation and module validation.
+
+### What this lab deliberately does not contain
+
+It focuses on the scope of conformance and validation evidence. It contains no ZIP215 experiment, ECDSA experiment, full Wycheproof suite browser, validation service, certificate generator, compliance checker, second AEAD/PQC experiment, or security score. Related fleet exhibits cover those: [Ed25519 Forge](https://systemslibrarian.github.io/crypto-lab-ed25519-forge/) owns the ZIP215/cofactor comparison, and [Corrupted Oracle](https://systemslibrarian.github.io/crypto-lab-corrupted-oracle/) and [DRBG Arena](https://systemslibrarian.github.io/crypto-lab-drbg-arena/) address generator evidence.
 
 ## When to Use It
 

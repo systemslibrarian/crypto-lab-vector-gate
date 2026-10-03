@@ -1,0 +1,33 @@
+{
+  "command": "python3 tools/check-oracles.py",
+  "python": "3.12.14",
+  "cryptography": "46.0.0",
+  "OpenSSL": "OpenSSL 3.5.3 16 Sep 2025",
+  "libsodium": "1.0.18",
+  "lineage": "OpenSSL Ed25519 and libsodium ref10; neither imports the lab verifier.",
+  "results": [
+    {
+      "case": "canonical",
+      "OpenSSL": true,
+      "libsodium": true,
+      "signature": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab07a9155711ecfaf7f99f277bad0c6ae7e39d4eef676573336a5c51eb6f946b30d",
+      "message": "54657374"
+    },
+    {
+      "case": "hostile",
+      "OpenSSL": false,
+      "libsodium": false,
+      "signature": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab067654bce3832c2d76f8f6f5dafc08d9339d4eef676573336a5c51eb6f946b31d",
+      "message": "54657374"
+    },
+    {
+      "case": "ordinary-message-bit-flip",
+      "OpenSSL": false,
+      "libsodium": false,
+      "signature": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab07a9155711ecfaf7f99f277bad0c6ae7e39d4eef676573336a5c51eb6f946b30d",
+      "message": "55657374"
+    }
+  ],
+  "RFC8032VectorsVerified": 5,
+  "longMessageBytes": 1023
+}

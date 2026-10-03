@@ -20,7 +20,7 @@ Use it to teach input predicates, scoped test evidence and the distinction betwe
 
 ## Live Demo
 
-Not published yet. The intended GitHub Pages path is `/crypto-lab-vector-gate/`. See [checkpoint status](docs/status.md) for unverified gates and publication/integration work.
+Publication is pending. The intended GitHub Pages path is `/crypto-lab-vector-gate/`.
 
 ## What Can Go Wrong
 

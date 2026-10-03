@@ -1,0 +1,14 @@
+{
+  "source": {
+    "repository": "C2SP/wycheproof",
+    "commit": "3fa63dd0344abb611f1fb1d77e119938603ea230",
+    "path": "testvectors_v1/ed25519_test.json",
+    "tcId": 63
+  },
+  "publicKey": "7d4d0e7f6153a69b6242b522abbee685fda4420f8834b108c3bdae369ef549fa",
+  "message": "54657374",
+  "canonical": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab07a9155711ecfaf7f99f277bad0c6ae7e39d4eef676573336a5c51eb6f946b30d",
+  "hostile": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab067654bce3832c2d76f8f6f5dafc08d9339d4eef676573336a5c51eb6f946b31d",
+  "negativeMessage": "55657374",
+  "canonicalOrigin": "Derived once because the hostile group has no valid case; exact bytes also match primary-source tcId 3 in a separate group. Independently checked with OpenSSL and libsodium."
+}

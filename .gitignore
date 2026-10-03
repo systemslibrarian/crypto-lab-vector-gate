@@ -1,0 +1,11 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+coverage/
+chat.md
+audits/_MASTER-TEMPLATE.md
+docs/status.md
+
+
+node_modules

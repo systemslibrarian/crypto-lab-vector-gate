@@ -1,0 +1,28 @@
+{
+  "publicKey": {
+    "type": "EDDSAPublicKey",
+    "curve": "edwards25519",
+    "keySize": 255,
+    "pk": "7d4d0e7f6153a69b6242b522abbee685fda4420f8834b108c3bdae369ef549fa"
+  },
+  "canonical": {
+    "tcId": 3,
+    "comment": "",
+    "flags": [
+      "Valid"
+    ],
+    "msg": "54657374",
+    "sig": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab07a9155711ecfaf7f99f277bad0c6ae7e39d4eef676573336a5c51eb6f946b30d",
+    "result": "valid"
+  },
+  "hostile": {
+    "tcId": 63,
+    "comment": "the encoded s was replaced by s + L. The scalar is unchanged mod L. Accepted only by verifiers that fail to enforce s < L. See RFC 8032, Section 5.1.7.",
+    "flags": [
+      "SignatureMalleability"
+    ],
+    "msg": "54657374",
+    "sig": "7c38e026f29e14aabd059a0f2db8b0cd783040609a8be684db12f82a27774ab067654bce3832c2d76f8f6f5dafc08d9339d4eef676573336a5c51eb6f946b31d",
+    "result": "invalid"
+  }
+}

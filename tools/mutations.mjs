@@ -11,8 +11,16 @@ const cases=[
  {id:'M4',file:'src/main.ts',anchor:'Matching these five RFC vectors does not establish rejection of noncanonical signatures.',replace:'These five RFC vectors were run.',test:'green vectors coexist',kind:'browser'},
  {id:'M5',file:'src/style.css',anchor:'--text:#edf1fb;',replace:'--text:#263149;',test:'WCAG gate: dark theme / 1280px',kind:'browser'},
  {id:'M6',file:'src/crypto/ed25519.ts',anchor:'const equation = left === right;',replace:'const equation = false;',test:'green vectors coexist',kind:'browser'},
- {id:'M7',file:'src/main.ts',anchor:"pending.removeAttribute('data-verdict');pending.removeAttribute('data-matched');",replace:"// mutation: keep the retired KAT marker",test:'changing the predicate retires',kind:'browser'},
- {id:'M8',file:'src/main.ts',anchor:'if(!repair.checked)return;',replace:'// mutation: rerun unchanged broken mode\n',test:'reselecting broken mode',kind:'browser'}
+ {id:'M7',file:'src/main.ts',anchor:"pending.removeAttribute('data-verdict'); pending.removeAttribute('data-matched');",replace:"// mutation: keep the retired KAT marker",test:'changing the predicate retires',kind:'browser'},
+ {id:'M8',file:'src/main.ts',anchor:'if (!repair.checked) return;',replace:'// mutation: rerun unchanged broken mode\n',test:'reselecting broken mode',kind:'browser'},
+ /* --- redesign verdicts. Every rendered verdict added by the interactive pass
+    gets a mutation that must kill its owning test. --- */
+ {id:'M9',file:'src/main.ts',anchor:'while (s + BigInt(k + 1) * L <= MAX_BYTES) k += 1;',replace:'while (s + BigInt(k + 1) * L <= MAX_BYTES && k < 3) k += 1;',test:'forge stepper produces a family',kind:'browser'},
+ /* Collapses two distinct rejection causes into one. The README requires the
+    causes to stay distinct, and the owning test counts them. */
+ {id:'M10',file:'src/main.ts',anchor:"if (r.stage === 'R') return 'Decode: the R half is not a valid point';",replace:"if (r.stage === 'R') return 'Group equation: [S]B \u2260 R + [k]A';",test:'byte surgery names which rule',kind:'browser'},
+ {id:'M11',file:'src/main.ts',anchor:"const correct = chosen.value === '0';",replace:'const correct = true;',test:'prediction is returned to and scored',kind:'browser'},
+ {id:'M12',file:'src/main.ts',anchor:'if (ok) right += 1;',replace:'right += 1;',test:'scope exercise scores the learner',kind:'browser'}
 ];
 function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:(r.stdout??'')+(r.stderr??'')};}
 function hash(){return createHash('sha256').update(readdirSync('dist/assets').filter(n=>/\.(css|js)$/.test(n)).sort().map(n=>readFileSync('dist/assets/'+n)).join('\n')).digest('hex');}

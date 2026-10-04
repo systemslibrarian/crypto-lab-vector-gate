@@ -20,7 +20,12 @@ const cases=[
     causes to stay distinct, and the owning test counts them. */
  {id:'M10',file:'src/main.ts',anchor:"if (r.stage === 'R') return 'Decode: the R half is not a valid point';",replace:"if (r.stage === 'R') return 'Group equation: [S]B \u2260 R + [k]A';",test:'byte surgery names which rule',kind:'browser'},
  {id:'M11',file:'src/main.ts',anchor:"const correct = chosen.value === '0';",replace:'const correct = true;',test:'prediction is returned to and scored',kind:'browser'},
- {id:'M12',file:'src/main.ts',anchor:'if (ok) right += 1;',replace:'right += 1;',test:'scope exercise scores the learner',kind:'browser'}
+ {id:'M12',file:'src/main.ts',anchor:'if (ok) right += 1;',replace:'right += 1;',test:'scope exercise scores the learner',kind:'browser'},
+ /* M13: the colour key. Green claims the verifier did what the specification
+    requires for that case, a required REJECTION included. Painting a required
+    rejection as neutral is what this page used to do -- two rejections, two
+    colours, and no key anywhere saying why they differed. */
+ {id:'M13',file:'src/main.ts',anchor:'const asRequired = evaluated && r.accepted !== mustReject;',replace:'const asRequired = evaluated && r.accepted;',test:'single-predicate repair changes',kind:'browser'}
 ];
 function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:(r.stdout??'')+(r.stderr??'')};}
 function hash(){return createHash('sha256').update(readdirSync('dist/assets').filter(n=>/\.(css|js)$/.test(n)).sort().map(n=>readFileSync('dist/assets/'+n)).join('\n')).digest('hex');}

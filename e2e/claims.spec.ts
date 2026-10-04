@@ -34,8 +34,20 @@ test('single-predicate repair changes the computed decision, preserves identical
   const outcomes=await page.locator('#case-results [data-verdict="decision"]').evaluateAll(ns=>ns.map(n=>n.getAttribute('data-outcome')));
   expect(outcomes).toEqual(['ACCEPT','REJECT','REJECT']);
  }
+ // The page states a colour key: green means the verifier did what the
+ // specification requires for that case, INCLUDING a required rejection. Two
+ // rejections used to render in two different colours with no key, so the rule
+ // is asserted rather than left to the stylesheet.
+ {
+  const tones=await page.locator('#case-results .decision').evaluateAll(ns=>ns.map(n=>n.className.replace('decision','').trim()));
+  expect(tones,'enforced: every case did what the RFC requires').toEqual(['pass','pass','pass']);
+ }
  await page.locator('#repair').uncheck();await expect(page.locator('#app')).toHaveAttribute('data-range','omitted');
  await expect(page.locator('#case-results .case').nth(2).locator('[data-verdict="decision"]')).toHaveAttribute('data-outcome','ACCEPT');
+ {
+  const tones=await page.locator('#case-results .decision').evaluateAll(ns=>ns.map(n=>n.className.replace('decision','').trim()));
+  expect(tones,'broken: only the hostile case is out of line with the RFC').toEqual(['pass','pass','alarm']);
+ }
 });
 test('on-screen scalars and equation sides independently support the mechanism',async({page})=>{
  await broken(page);await page.getByText('Inspect the pinned inputs',{exact:true}).click();

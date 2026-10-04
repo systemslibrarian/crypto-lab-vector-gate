@@ -48,38 +48,40 @@ function rejectionRule(r: Verification, wrongMessage: boolean): string {
 
 app.innerHTML = `
 <header class="cl-hero">
- <div class="cl-hero-main"><p class="eyebrow">SIGNATURES / EVIDENCE SCOPE</p><h1 class="cl-hero-title">Vector Gate</h1>
- <p class="cl-hero-sub">Ed25519 Verification · Test Vectors · NIST Validation Scope</p>
- <p class="cl-hero-desc">Run five RFC vectors, switch off one rule and watch a forgery be accepted, then build a whole family of them.</p></div>
- <aside class="cl-hero-why" aria-label="Why it matters"><span class="eyebrow">WHY IT MATTERS</span><p>A passing test answers a specific question. Decisions about a whole system need evidence whose scope matches the claim.</p></aside>
+ <div class="cl-hero-main"><p class="eyebrow">SIGNATURES / A VERIFIER THAT ACCEPTS A FORGERY</p><h1 class="cl-hero-title">Vector Gate</h1>
+ <p class="cl-hero-sub">Ed25519 · RFC 8032 §5.1.7 · Wycheproof</p>
+ <p class="cl-hero-desc">Turn off one required check and watch this verifier accept a signature nobody ever signed — then build ${MAX_K} more of them yourself, and find out why a passing test suite never noticed.</p></div>
+ <aside class="cl-hero-why" aria-label="Why it matters"><span class="eyebrow">WHY IT MATTERS</span><p>A signature is supposed to prove a specific person signed a specific message. A verifier that checks the equation and skips one range rule will accept signatures nobody signed — while every published test vector still passes.</p></aside>
 </header>
 
-<section class="intro"><h2>What Does a Green Crypto Test Actually Prove?</h2>
- <p>A test can be perfectly green and still leave an important rule untouched. Run the evidence, find the missing predicate, then decide exactly what each result established.</p>
- <p>A digital signature binds a message to a public key. Verification checks an equation <em>and</em> the required input rules. A predicate is simply a condition that must hold.</p>
- <p class="plain">In plain terms: a signature here is two numbers written side by side, called R and S. Checking one equation proves the pair fits together. A <em>separate</em> rule says S must also be smaller than a fixed number called L. This page is about what happens when the equation is checked and that second rule is not.</p>
+<section class="intro"><h2>Break the verifier, here, now</h2>
+ <p class="plain">A signature is two numbers written side by side, called <strong>R</strong> and <strong>S</strong>. A verifier has two jobs: check that the pair fits the message and the key, and check that <strong>S</strong> is smaller than a fixed number called <strong>L</strong>. The second job is easy to leave out, and leaving it out is not visible from outside.</p>
+ <p class="plain">The button below switches that second check off on this page. The signature bytes do not change. The verdict does.</p>
+
+ <div class="switchboard">
+  <button id="enter-broken" type="button" class="enter-broken">Switch off the second check</button>
+  <label class="repair" id="repair-label" hidden><input id="repair" type="checkbox" checked> The second check: require S smaller than L (0 ≤ S &lt; L) — RFC 8032 §5.1.7</label>
+  <p id="mode" class="mode" role="status" aria-live="polite">The second check is ON. Switching it off takes a deliberate click.</p>
+  <p class="switch-lead">Every exhibit below is judged by whichever setting this switch is in. Nothing else on the page changes.</p>
+ </div>
+
+ <p>Then the question the rest of the page answers: five published test vectors pass either way, so what did passing them actually establish?</p>
 </section>
 
-<section class="exhibit" aria-labelledby="kat-heading"><div class="section-label">EXHIBIT 01</div><h2 id="kat-heading">The Test Passed</h2>
- <p>These are five named verification cases from RFC 8032 §7.1. The longest message is 1,023 bytes, spanning multiple SHA-512 blocks.</p>
+<section class="exhibit" aria-labelledby="kat-heading"><div class="section-label">EXHIBIT 01</div><h2 id="kat-heading">The published tests all pass — either way</h2>
+ <p>These are the five verification examples printed in the Ed25519 specification itself (RFC 8032 §7.1). They pass with the second check on and they pass with it off, which is the first thing worth noticing: a green test suite here is not evidence that the check exists. The longest of them is a 1,023-byte message, long enough to span several hashing blocks.</p>
  <div id="kat-summary" role="status" aria-live="polite">Waiting to run the named RFC vectors.</div><div id="kat-results" class="kat-grid"></div>
  <fieldset><legend>What does this establish?</legend><div class="predictions">
  ${['The named vectors matched', 'The verifier follows every RFC rule', 'Malformed signatures will always reject', 'The implementation is validated', 'The system is secure'].map((s, i) => `<label><input type="radio" name="prediction" value="${i}"> ${s}</label>`).join('')}
  </div></fieldset><p id="prediction-response" role="status" aria-live="polite">Keep your prediction in mind as you test a different input.</p>
 </section>
 
-<section class="exhibit" aria-labelledby="experiment-heading"><div class="section-label">EXHIBIT 02</div><h2 id="experiment-heading">The Case the KAT Never Asked</h2>
- <p>The canonical and hostile signatures have the same public key, message, and first 32 bytes. Only the scalar half changes. The ordinary control flips one message bit.</p>
+<section class="exhibit" aria-labelledby="experiment-heading"><div class="section-label">EXHIBIT 02</div><h2 id="experiment-heading">The case those tests never asked about</h2>
+ <p>Three signatures are checked here against the same key and the same message. The first is the genuine one. The second is the genuine one with a single bit of the message changed — the control, which any verifier must reject. The third is the forgery: byte for byte it shares the genuine signature's first half, and only its second number, <strong>S</strong>, is different. Watch what the switch above does to the third one.</p>
 
- <div class="switchboard">
-  <p class="switch-lead">One predicate decides what happens next. Turn it off and watch the same three pinned inputs be judged again.</p>
-  <button id="enter-broken" type="button" class="enter-broken">Enter deliberately broken experiment</button>
-  <label class="repair" id="repair-label" hidden><input id="repair" type="checkbox" checked> Enforce canonical S (0 ≤ S &lt; L) — RFC 8032 §5.1.7</label>
-  <p id="mode" class="mode" role="status" aria-live="polite">Canonical-S enforcement is on. Broken mode requires an explicit action.</p>
- </div>
-
+ <p class="verdict-key">Colour here answers one question: <strong>did this verifier do what the specification requires for this case?</strong> Green is yes — including a rejection, when a rejection is what was required. Amber is no.</p>
  <div id="case-results" class="case-grid"></div>
- <p id="repair-status" role="status" aria-live="polite">Canonical-S enforcement is enabled.</p>
+ <p id="repair-status" role="status" aria-live="polite">The second check is enabled.</p>
  <p id="negative-claim" data-claim="negative-scope">Matching these five RFC vectors does not establish rejection of noncanonical signatures.</p>
 
  <div id="prediction-verdict" class="prediction-verdict" role="status" aria-live="polite" hidden></div>
@@ -89,8 +91,8 @@ app.innerHTML = `
  <p>The canonical bytes were frozen after subtracting L, matched to primary-source tcId 3 in a separate group, and cross-checked with OpenSSL and libsodium.</p></div></details>
 </section>
 
-<section class="exhibit" aria-labelledby="mechanism-heading"><div class="section-label">EXHIBIT 03</div><h2 id="mechanism-heading">Why S + L Slips Through</h2>
- <p>The challenge hashes R, A, and M. Since all three stay the same, the challenge stays the same. The base point B repeats after L additions. These are the values actually computed on this page.</p>
+<section class="exhibit" aria-labelledby="mechanism-heading"><div class="section-label">EXHIBIT 03</div><h2 id="mechanism-heading">Why the forgery satisfies the equation</h2>
+ <p>Adding <strong>L</strong> to <strong>S</strong> leaves the equation's two sides exactly where they were, so the one check that is still running has nothing to object to. The three panels below show that, in the values this page actually computed: the challenge is unchanged, the equation balances to the same point, and only the separate range rule can tell the two signatures apart.</p>
  <div class="mechanism" role="group" aria-label="Computed signature comparison">
   <article><h3>Same challenge</h3><p>k = SHA-512(R ‖ A ‖ M) mod L</p>
    <dl class="live"><dt>k from canonical</dt><dd><code id="k-canonical">…</code></dd><dt>k from hostile</dt><dd><code id="k-hostile">…</code></dd></dl>
@@ -98,15 +100,15 @@ app.innerHTML = `
   <article><h3>Same equation</h3><p>[S + L]B = [S]B because [L]B is the identity.</p>
    <dl class="live"><dt>[S]B</dt><dd><code id="left-canonical-live">…</code></dd><dt>[S + L]B</dt><dd><code id="left-hostile-live">…</code></dd><dt>R + [k]A</dt><dd><code id="right-hostile-live">…</code></dd></dl>
    <code id="equation-equal">Waiting for computation</code></article>
-  <article class="missing"><h3>Separate required gate</h3><p>RFC 8032 §5.1.7 requires</p><code>0 ≤ S &lt; L</code>
+  <article class="missing"><h3>The check you switched off</h3><p>RFC 8032 §5.1.7 requires</p><code>0 ≤ S &lt; L</code>
    <dl class="live"><dt>S canonical</dt><dd><code id="s-canonical-live">…</code></dd><dt>S hostile</dt><dd><code id="s-hostile-live">…</code></dd><dt>L</dt><dd><code id="l-live">…</code></dd></dl>
    <p>An equation match does not test this range.</p></article>
  </div>
  <p>Both modes use the same strict point decoder and the same uncofactored equation, an option permitted by RFC 8032 §5.1.7. The trace computes the equation for inspection even when the range rule independently requires rejection.</p>
 </section>
 
-<section class="exhibit" aria-labelledby="forge-heading"><div class="section-label">EXHIBIT 04</div><h2 id="forge-heading">Forge It Yourself</h2>
- <p>The hostile signature added L to S exactly once. Nothing stops you adding it again. Each step keeps R and the message unchanged and re-verifies under the switch above.</p>
+<section class="exhibit" aria-labelledby="forge-heading"><div class="section-label">EXHIBIT 04</div><h2 id="forge-heading">Forge it yourself — the forgery is not a one-off</h2>
+ <p>The pinned forgery added <strong>L</strong> to <strong>S</strong> exactly once, and nothing stops you adding it again. Drag the slider to build more of them. Every one keeps the first half and the message untouched, and every one is re-checked under the switch above.</p>
  <div class="forge-controls">
   <label for="forge-k">Multiples of L added to S</label>
   <input id="forge-k" type="range" min="0" max="${MAX_K}" value="0" step="1" aria-describedby="forge-readout">
@@ -121,8 +123,8 @@ app.innerHTML = `
  </div></details>
 </section>
 
-<section class="exhibit" aria-labelledby="surgery-heading"><div class="section-label">EXHIBIT 05</div><h2 id="surgery-heading">Byte Surgery</h2>
- <p>Choose any byte of the canonical signature and change it. The verifier reports which rule turned the result down — the causes stay distinct, because a verifier that collapses them tells you less than one that does not.</p>
+<section class="exhibit" aria-labelledby="surgery-heading"><div class="section-label">EXHIBIT 05</div><h2 id="surgery-heading">Byte surgery — not every rejection means the same thing</h2>
+ <p>Change any single byte of the genuine signature and see <em>which</em> rule turned it down. A corrupted first half fails to decode, a corrupted second half fails the equation, and an out-of-range <strong>S</strong> fails the range rule. They are different failures, and this verifier keeps them apart on purpose: one that reported them all as "invalid" would tell you less.</p>
  <div class="surgery-controls">
   <label for="surgery-index">Signature byte (0–63)</label>
   <input id="surgery-index" type="number" min="0" max="63" value="32" step="1">
@@ -135,7 +137,7 @@ app.innerHTML = `
 </section>
 
 <section class="exhibit" aria-labelledby="scope-heading"><div class="section-label">EXHIBIT 06</div><h2 id="scope-heading">What Did the Green Result Prove?</h2>
- <p>These are parallel evidence claims about different objects. They are not a security ladder. Assign each piece of evidence you have just seen, then compare with the reference answer.</p>
+ <p>You have now produced three separate pieces of evidence on this page. Each supports a different kind of claim, and the five kinds below are about different things — they are not a ladder from weak to strong. Put each piece of evidence in its box, then compare with the reference answer.</p>
  <div id="scope-exercise" class="scope-exercise"></div>
  <button id="scope-reveal" type="button">Show the reference answer</button>
  <p id="scope-score" role="status" aria-live="polite"></p>
@@ -144,7 +146,7 @@ app.innerHTML = `
  <p class="limitation">This educational exhibit is not ACVTS or an accredited NVLAP laboratory. It issues no NIST algorithm validation or CAVP certificate, and no CMVP or FIPS 140-3 module certificate. It is not production crypto.</p>
 </section>
 
-<section class="closing"><h2>State exactly what was established</h2><p><strong>A green test result means the predicate that was tested succeeded. Its scope does not silently expand to properties that were never tested.</strong></p><p>Testing and validation matter. The discipline is to state exactly what evidence you have.</p>
+<section class="closing"><h2>State exactly what was established</h2><p><strong>A green test result means the condition that was tested held. Its scope does not silently expand to properties that were never tested.</strong></p><p>Testing and validation matter. The discipline is to state exactly what evidence you have.</p>
  <p>The same distinction applies to ML-KEM: evidence about named primitive cases does not by itself establish protocol composition, caller behavior, side-channel resistance, or module validation. Explore <a href="https://systemslibrarian.github.io/crypto-lab-kyber-vault/">Kyber Vault</a> and <a href="https://systemslibrarian.github.io/crypto-lab-kem-trap/">KEM Trap</a>.</p></section>
 
 <section class="references"><h2>Sources and neighboring exhibits</h2><p>Sources checked 2 October 2026. Fixtures are bundled; running the experiment makes no external requests.</p><ul>
@@ -186,16 +188,25 @@ const forgeK = document.querySelector<HTMLInputElement>('#forge-k')!;
 const surgeryIndex = document.querySelector<HTMLInputElement>('#surgery-index')!;
 const surgeryValue = document.querySelector<HTMLInputElement>('#surgery-value')!;
 
-const resultMarkup = (name: string, r: Verification, hostile = false) => {
-  const alarm = hostile && r.accepted;
+/* One colour, one meaning. The tone used to be `accepted || hostile`, which
+   painted the hostile REJECT green and the message-corruption REJECT white --
+   two rejections, two colours, and no key anywhere saying why. Colour now
+   tracks ONE question, the one the fleet's rule asks: did the system do what
+   the specification requires for this fixture? A rejection that was required is
+   the system working, whichever card it is on. */
+const resultMarkup = (name: string, r: Verification, mustReject = false) => {
+  const alarm = mustReject && r.accepted;
   const evaluated = r.stage === 'decision';
   const decision = r.accepted ? 'ACCEPT' : 'REJECT';
-  const tone = alarm ? 'alarm' : evaluated && (r.accepted || hostile) ? 'pass' : 'neutral';
-  return `<article class="case"><h3>${name}</h3><p class="decision ${tone}" data-verdict="decision" data-outcome="${decision}">${alarm ? '!' : r.accepted ? '✓' : '×'} ${decision}</p><dl>
+  const asRequired = evaluated && r.accepted !== mustReject;
+  const tone = alarm ? 'alarm' : asRequired ? 'pass' : 'neutral';
+  return `<article class="case"><h3>${name}</h3><p class="decision ${tone}" data-verdict="decision" data-outcome="${decision}">${alarm ? '!' : r.accepted ? '✓' : '×'} ${decision}</p>
+ <p class="plain-verdict">${!evaluated ? 'The verifier stopped before it reached these checks.' : alarm ? 'This verifier accepted it. The specification says it must not.' : r.accepted ? 'Accepted, and the specification says it should be.' : 'Rejected, and the specification says it must be.'}</p>
+ <details class="why"><summary>What the verifier checked</summary><dl>
  <dt>Group equation</dt><dd data-field="equation">${r.equation === null ? 'NOT EVALUATED' : r.equation ? 'PASS' : 'FAIL'}</dd>
  <dt>Canonical S range</dt><dd data-field="range">${r.range === null ? 'NOT EVALUATED' : r.enforceRange ? r.range ? 'PASS' : 'FAIL' : 'NOT ENFORCED' + (r.range ? ' (in range)' : ' (out of range)')}</dd>
- <dt>Decision reason</dt><dd data-field="reason">${r.reason}</dd><dt>RFC requirement for this fixture</dt><dd>${hostile || name.includes('corruption') ? 'REJECT REQUIRED' : 'ACCEPT EXPECTED'}</dd></dl>
- <p class="interpretation">${!evaluated ? 'Verification stopped before the equation and scalar-range checks. No evidence about those predicates was obtained.' : alarm ? 'The equation passed, but the verifier accepted a signature RFC 8032 requires it to reject.' : hostile ? 'The pinned hostile case was rejected. This result is evidence about this case.' : r.accepted ? 'This named canonical signature was accepted.' : 'The message-corruption control was rejected.'}</p></article>`;
+ <dt>Decision reason</dt><dd data-field="reason">${r.reason}</dd><dt>RFC requirement for this fixture</dt><dd>${mustReject ? 'REJECT REQUIRED' : 'ACCEPT EXPECTED'}</dd></dl></details>
+ <p class="interpretation">${!evaluated ? 'Verification stopped before the equation and scalar-range checks. No evidence about those conditions was obtained.' : alarm ? 'The equation passed, but the verifier accepted a signature RFC 8032 requires it to reject.' : mustReject ? 'The case that had to be rejected was rejected. This result is evidence about this case.' : 'This genuine signature was accepted.'}</p></article>`;
 };
 
 let generation = 0;
@@ -242,7 +253,7 @@ async function run(): Promise<void> {
        the problem rather than the same panel changing. */
     document.querySelector('#case-results')!.innerHTML =
       resultMarkup('Canonical same-message signature', canonical)
-      + resultMarkup('Ordinary message corruption', negative)
+      + resultMarkup('Ordinary message corruption', negative, true)
       + resultMarkup('Hostile S + L signature', hostile, true);
 
     /* Exhibit 03, computed and visible rather than asserted behind a disclosure. */
@@ -257,7 +268,7 @@ async function run(): Promise<void> {
     document.querySelector('#challenge-equal')!.textContent = canonical.challenge === hostile.challenge && canonical.challenge !== undefined ? '✓ k canonical = k hostile' : '× Challenges differ or were not evaluated';
     document.querySelector('#equation-equal')!.textContent = canonical.left === hostile.left && canonical.left !== undefined ? '✓ Computed [S]B = [S + L]B' : '× Left sides differ or were not evaluated';
 
-    document.querySelector('#mode')!.textContent = enforceRange ? 'Canonical-S enforcement is ON.' : 'DELIBERATELY BROKEN: canonical-S enforcement is OFF.';
+    document.querySelector('#mode')!.textContent = enforceRange ? 'The second check is ON — this verifier follows the specification.' : 'DELIBERATELY BROKEN: the second check is OFF.';
     document.querySelector('#mode')!.className = enforceRange ? 'mode' : 'mode alarm';
     document.querySelector('#repair-status')!.textContent = `${enforceRange ? 'Range rule enabled' : 'Range rule omitted'}. Canonical ${canonical.accepted ? 'accepted' : 'rejected'}; hostile ${hostile.accepted ? 'accepted' : 'rejected'} (${hostile.reason}); ordinary corruption ${negative.accepted ? 'accepted' : 'rejected'}. Same pinned signature bytes.`;
 

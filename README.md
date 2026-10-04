@@ -2,17 +2,23 @@
 
 ## What It Is
 
-Vector Gate is a browser-only Ed25519 verification experiment about the scope of cryptographic evidence. Five named RFC 8032 cases match while a deliberately broken verifier accepts a pinned Wycheproof S + L signature. Enabling only the canonical scalar range rule rejects the same hostile bytes.
+Vector Gate is a browser-only Ed25519 lab about **a verifier that accepts a signature nobody signed.**
+
+Ed25519 verification has two jobs: check the equation, and check that the scalar `S` is smaller than the group order `L` (RFC 8032 §5.1.7). Leave the second one out and the verifier still satisfies every published test vector — and still accepts a pinned Wycheproof forgery built by adding `L` to a genuine signature's `S`. You switch that check off yourself, watch the forgery go through, build the whole family of them, and switch it back on to watch the same bytes be rejected.
+
+The closing exhibit is the question that follows: the five RFC vectors passed the whole time, so what did passing them establish? That is where conformance cases, adversarial cases, CAVP algorithm validation and CMVP module validation are separated — as parallel claims about different objects, not a ladder.
 
 The equation and hash are real: an inspectable TypeScript verifier performs extended-coordinate Edwards arithmetic and WebCrypto SHA-512. Fixtures are public and pinned. This is variable-time educational code, not production crypto. The page is not a NIST service or accredited laboratory and issues no algorithm/module validation certificate.
 
 ## Exhibits
 
-1. **The Test Passed** runs five RFC §7.1 verification vectors, asks what matching them establishes, and records your prediction.
-2. **The Case the KAT Never Asked** puts the canonical-S switch next to the three pinned cases, so flipping it is the central act. Broken mode still requires explicit entry, and the same panel is rerun — not a second copy of it. Your prediction from Exhibit 01 is returned to and scored once the hostile signature has actually been accepted.
-3. **Why S + L Slips Through** shows the computed challenge from both signatures, both scalars, L, and both sides of the equation as live values.
-4. **Forge It Yourself** adds k·L to S and re-verifies under the same switch. The page computes how many values of k keep the scalar inside 32 bytes, so the result is a family of forgeries rather than one fixture.
-5. **Byte Surgery** alters any byte of the canonical signature and reports which rule turned the result down — decode, scalar range, or group equation — with the causes kept distinct.
+The switch that breaks the verifier is in the first screen, above every exhibit; reaching broken mode still takes one deliberate click.
+
+1. **The published tests all pass — either way** runs five RFC §7.1 verification vectors, asks what matching them establishes, and records your prediction.
+2. **The case those tests never asked about** judges a genuine signature, a message-corruption control and the forgery under whichever setting the switch is in, in one panel that is rerun rather than copied. Your prediction from Exhibit 01 is returned to and scored once the hostile signature has actually been accepted.
+3. **Why the forgery satisfies the equation** shows the computed challenge from both signatures, both scalars, L, and both sides of the equation as live values.
+4. **Forge it yourself** adds k·L to S and re-verifies under the same switch. The page computes how many values of k keep the scalar inside 32 bytes, so the result is a family of forgeries rather than one fixture.
+5. **Byte surgery** alters any byte of the canonical signature and reports which rule turned the result down — decode, scalar range, or group equation — with the causes kept distinct.
 6. **What Did the Green Result Prove?** asks you to assign each piece of evidence you produced to the kind of claim it supports, then reveals the reference answer and the five parallel evidence scopes: specification, named case, adversarial case, algorithm validation and module validation.
 
 ### What this lab deliberately does not contain
@@ -21,7 +27,7 @@ It focuses on the scope of conformance and validation evidence. It contains no Z
 
 ## When to Use It
 
-Use it to teach input predicates, scoped test evidence and the distinction between algorithm and module validation. Do not use it to verify production signatures, assess overall application security, or claim certification.
+Use it to show that a verifier can pass its whole test suite and still accept forgeries, to make the `0 ≤ S < L` requirement concrete, and then to separate scoped test evidence from algorithm and module validation. Do not use it to verify production signatures, assess overall application security, or claim certification.
 
 ## Live Demo
 

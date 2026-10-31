@@ -146,6 +146,17 @@ app.innerHTML = `
  <p class="limitation">This educational exhibit is not ACVTS or an accredited NVLAP laboratory. It issues no NIST algorithm validation or CAVP certificate, and no CMVP or FIPS 140-3 module certificate. It is not production crypto.</p>
 </section>
 
+<section class="exhibit" aria-labelledby="compiler-preservation-heading"><h2 id="compiler-preservation-heading">One named compiler preservation result</h2>
+ <p><a href="https://arxiv.org/abs/2511.11292v2" target="_blank" rel="noopener noreferrer">KEM-IND-CCA-Preserving Compilation of Jasmin's ML-KEM</a> (version 2, pp. 2, 6–7, 13) proves preservation of a game-based result through a specific Jasmin compilation path. Source and compiled challengers have equal advantage for the same abstract adversary under the stated safety, stack and pointer-separation conditions. This is not a new ML-KEM hardness proof.</p>
+ <div class="table-scroll" tabindex="0" role="region" aria-label="Compiler evidence dependencies"><table><caption>Evidence and dependencies answer different questions</caption><thead><tr><th scope="col">Evidence or dependency</th><th scope="col">Scope</th></tr></thead><tbody>
+ <tr><td>Conformance vectors</td><td>Named input/output cases; they do not establish compiler preservation.</td></tr>
+ <tr><td>Jasmin source-to-compiled challenger theorem</td><td>Preserves the specified game under its safety and memory-separation conditions, using the same abstract adversary.</td></tr>
+ <tr><td>Trust base</td><td>Preprocessor/printer, x86-64 model, Rocq kernel and OCaml compiler remain dependencies.</td></tr>
+ <tr><td>Side channels and deployment</td><td>The adversary does not observe side channels or manipulate cache/branch predictors. Cache security, speculative constant-time behavior and system security are outside this result.</td></tr>
+ </tbody></table></div>
+ <p>Rejection sampling may terminate almost surely without a fixed worst-case loop bound. This theorem does not transfer to noble JavaScript, WASM or a browser JIT. Keep the separate timing, erasure and no-independent-audit limits in <a href="https://systemslibrarian.github.io/crypto-lab-kyber-vault/">Kyber Vault</a>. These dependencies are not a universal assurance ladder.</p>
+</section>
+
 <section class="closing"><h2>State exactly what was established</h2><p><strong>A green test result means the condition that was tested held. Its scope does not silently expand to properties that were never tested.</strong></p><p>Testing and validation matter. The discipline is to state exactly what evidence you have.</p>
  <p>The same distinction applies to ML-KEM: evidence about named primitive cases does not by itself establish protocol composition, caller behavior, side-channel resistance, or module validation. Explore <a href="https://systemslibrarian.github.io/crypto-lab-kyber-vault/">Kyber Vault</a> and <a href="https://systemslibrarian.github.io/crypto-lab-kem-trap/">KEM Trap</a>.</p></section>
 

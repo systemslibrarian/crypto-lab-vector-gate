@@ -84,3 +84,7 @@ The public-fixture verifier uses variable-time BigInt arithmetic for inspectabil
 *One of the browser demos in the [Crypto Lab](https://crypto-lab.systemslibrarian.dev/) suite.*
 
 *"So whether you eat or drink or whatever you do, do it all for the glory of God." — 1 Corinthians 10:31*
+
+## Research review extension 31 October 2026
+
+R20261031-08: The evidence-scope lesson names the version 2 Jasmin ML-KEM compiler-preservation theorem, its safety/memory conditions and trust base. It explicitly excludes cache/speculation claims and any transfer to this browser, noble JavaScript or WASM.

@@ -177,6 +177,34 @@ test('the Exhibit 01 prediction is returned to and scored once the hostile case 
  await expect(page.locator('#prediction-verdict')).toContainText('only');
 });
 
+test('the prediction verdict renders its chosen label as text, not as markup',async({page})=>{
+ await boot(page);
+ // The five labels are literals in this page's own source, so no visitor can put a
+ // meta-character in one. Put one there anyway: the value is READ BACK out of the DOM
+ // and rendered, and what protects that round trip should be the rendering, not the
+ // provenance of the text. With innerHTML this <img> is an element with a live
+ // onerror attribute; with DOM APIs it is six words of text.
+ await page.locator('input[name="prediction"][value="1"]').check();
+ await page.locator('input[name="prediction"][value="1"]').evaluate((node)=>{
+  const label=(node as HTMLInputElement).labels?.[0];
+  if(!label) throw new Error('the radio has no label to rewrite');
+  // Rewrite the label's TEXT node. Setting label.textContent would delete the radio
+  // inside it, and then there would be no chosen option to render at all.
+  const text=Array.from(label.childNodes).find((n)=>n.nodeType===3&&(n.textContent??'').trim().length>0);
+  if(!text) throw new Error('the label has no text node to rewrite');
+  text.textContent=' <img src=x onerror="document.title=\'xss\'"> injected';
+ });
+ await page.locator('#enter-broken').click();
+ await expect(page.locator('#prediction-verdict')).toBeVisible();
+ await expect(page.locator('#prediction-verdict img')).toHaveCount(0);
+ await expect(page.locator('#prediction-verdict [onerror]')).toHaveCount(0);
+ await expect(page.locator('#prediction-verdict')).toContainText('onerror');
+ await expect(page).toHaveTitle(/^(?!xss$).*/);
+ // And the rest of the panel still reads the way it always did.
+ await expect(page.locator('#prediction-verdict h3')).toHaveText('Your prediction, now that the evidence is in');
+ await expect(page.locator('#prediction-verdict')).toContainText('Not supported by this evidence');
+});
+
 test('the scope exercise scores the learner against the reference answer',async({page})=>{
  await boot(page);
  await expect(page.locator('#evidence-cards')).toBeHidden();

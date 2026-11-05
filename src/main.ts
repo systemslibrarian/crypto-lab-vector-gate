@@ -345,12 +345,33 @@ function resolvePrediction(): void {
   box.hidden = false;
   box.setAttribute('data-prediction', chosen.value);
   box.setAttribute('data-correct', String(correct));
-  box.innerHTML = `<h3>Your prediction, now that the evidence is in</h3>
-   <p>You chose <strong>${chosen.labels?.[0]?.textContent?.trim() ?? 'an option'}</strong>.</p>
-   <p>${correct
-      ? 'Supported. The five named vectors matched, and that is all they established — the hostile signature you have just seen accepted was never covered by them.'
-      : 'Not supported by this evidence. The hostile signature was accepted while all five named vectors still matched, so the green result did not establish it.'}</p>
-   <p>Of the five options, only <strong>“The named vectors matched”</strong> is supported by what this page has run. The other four reach past the inputs that were tested.</p>`;
+  // Built with DOM APIs rather than innerHTML. The chosen option's text is READ BACK
+  // from the label this page rendered, and CodeQL flagged the round trip:
+  // js/xss-through-dom, high, src/main.ts:348, 2026-10-28. Its codeFlow is three steps —
+  // `chosen.labels[0].textContent` -> `.trim()` -> the template that becomes innerHTML.
+  // Nothing a visitor types reaches it: the five labels come from a literal array at
+  // src/main.ts:75. So this is defence in depth, and worth having structurally rather
+  // than as a sentence, because the escaping of a value read out of the DOM should not
+  // depend on where that value happened to come from.
+  const heading = document.createElement('h3');
+  heading.textContent = 'Your prediction, now that the evidence is in';
+  const chosenLine = document.createElement('p');
+  const chosenLabel = document.createElement('strong');
+  chosenLabel.textContent = chosen.labels?.[0]?.textContent?.trim() ?? 'an option';
+  chosenLine.append('You chose ', chosenLabel, '.');
+  const verdictLine = document.createElement('p');
+  verdictLine.textContent = correct
+    ? 'Supported. The five named vectors matched, and that is all they established — the hostile signature you have just seen accepted was never covered by them.'
+    : 'Not supported by this evidence. The hostile signature was accepted while all five named vectors still matched, so the green result did not establish it.';
+  const closingLine = document.createElement('p');
+  const supportedOption = document.createElement('strong');
+  supportedOption.textContent = '“The named vectors matched”';
+  closingLine.append(
+    'Of the five options, only ',
+    supportedOption,
+    ' is supported by what this page has run. The other four reach past the inputs that were tested.',
+  );
+  box.replaceChildren(heading, chosenLine, verdictLine, closingLine);
 }
 
 document.querySelector('#scope-reveal')!.addEventListener('click', () => {

@@ -19,6 +19,10 @@ const cases=[
  /* Collapses two distinct rejection causes into one. The README requires the
     causes to stay distinct, and the owning test counts them. */
  {id:'M10',file:'src/main.ts',anchor:"if (r.stage === 'R') return 'Decode: the R half is not a valid point';",replace:"if (r.stage === 'R') return 'Group equation: [S]B \u2260 R + [k]A';",test:'byte surgery names which rule',kind:'browser'},
+ /* The prediction verdict reads its chosen option's text back out of the DOM.
+    Rendering it with innerHTML turns that round trip into an HTML sink, which is
+    what CodeQL flagged (js/xss-through-dom, src/main.ts:348, 2026-10-28). */
+ {id:'M20',file:'src/main.ts',anchor:'box.replaceChildren(heading, chosenLine, verdictLine, closingLine);',replace:'box.innerHTML = `<h3>${heading.textContent}</h3><p>You chose <strong>${chosenLabel.textContent}</strong>.</p><p>${verdictLine.textContent}</p><p>${closingLine.textContent}</p>`;',test:'renders its chosen label as text',kind:'browser'},
  {id:'M11',file:'src/main.ts',anchor:"const correct = chosen.value === '0';",replace:'const correct = true;',test:'prediction is returned to and scored',kind:'browser'},
  {id:'M12',file:'src/main.ts',anchor:'if (ok) right += 1;',replace:'right += 1;',test:'scope exercise scores the learner',kind:'browser'},
  /* M13: the colour key. Green claims the verifier did what the specification

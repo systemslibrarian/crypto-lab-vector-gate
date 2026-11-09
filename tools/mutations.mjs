@@ -2,7 +2,15 @@
 import { readFileSync, writeFileSync, readdirSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import { withoutLocalPaths } from './local-paths.mjs';
 const unitOnly=process.argv.includes('--unit-only');
+/* Captured output names the checkout it ran in -- vitest prints its project root
+   and Playwright prints absolute stack frames -- and this file is committed and
+   republished by the catalog's audit corpus. Every observation is therefore
+   recorded against the REPOSITORY rather than against a working copy; the frame
+   that is evidence here is e2e/claims.spec.ts:25, which is that line in any
+   checkout. See tools/local-paths.mjs. */
+const ROOT=process.cwd();
 const observations=[];
 const cases=[
  {id:'M1',file:'src/crypto/ed25519.ts',anchor:'const accepted = equation && (!enforceRange || range);',replace:'const accepted = equation;',test:'same hostile bytes accepted only',kind:'unit'},
@@ -31,7 +39,7 @@ const cases=[
     colours, and no key anywhere saying why they differed. */
  {id:'M13',file:'src/main.ts',anchor:'const asRequired = evaluated && r.accepted !== mustReject;',replace:'const asRequired = evaluated && r.accepted;',test:'single-predicate repair changes',kind:'browser'}
 ];
-function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:(r.stdout??'')+(r.stderr??'')};}
+function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:withoutLocalPaths((r.stdout??'')+(r.stderr??''),ROOT)};}
 function hash(){return createHash('sha256').update(readdirSync('dist/assets').filter(n=>/\.(css|js)$/.test(n)).sort().map(n=>readFileSync('dist/assets/'+n)).join('\n')).digest('hex');}
 function ensureBuild(){const r=run(['run','build']);if(r.status!==0)throw Error('DOES NOT BUILD: '+r.output);return hash();}
 const nonTestFailure=/Executable doesn't exist|browserType\.launch|Timed out waiting|webServer was not able|Connection refused|ERR_CONNECTION|Cannot find module|No tests found/;
@@ -51,6 +59,6 @@ try{
   }finally{writeFileSync(c.file,original);const restored=ensureBuild();if(restored!==before)throw Error(c.id+' restore hash differs');}
   console.log(c.id+' KILLED; build succeeded, bundle changed, named owning test failed, source and bundle restored.');
  }
-}catch(e){failed=true;observations.push({observed:'BLOCKED',reason:e.message});console.error(e.message);}
+}catch(e){failed=true;observations.push({observed:'BLOCKED',reason:withoutLocalPaths(e.message,ROOT)});console.error(e.message);}
 mkdirSync('audits',{recursive:true});writeFileSync('audits/mutation-observations.json',JSON.stringify({scope:unitOnly?'unit source mutations only':'unit + production-browser source mutations',observations},null,2)+'\n');
 if(failed)process.exitCode=1;

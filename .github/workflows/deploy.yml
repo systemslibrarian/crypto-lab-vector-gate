@@ -58,8 +58,10 @@ jobs:
       pull-requests: write
       actions: write
     steps:
-      - uses: dependabot/fetch-metadata@v3
+      - id: meta
+        uses: dependabot/fetch-metadata@v3
       - name: Merge gated dependency update and dispatch deploy
+        if: steps.meta.outputs.update-type != 'version-update:semver-major'
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

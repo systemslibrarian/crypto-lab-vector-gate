@@ -124,7 +124,7 @@ app.innerHTML = `
 </section>
 
 <section class="exhibit" aria-labelledby="surgery-heading"><div class="section-label">EXHIBIT 05</div><h2 id="surgery-heading">Byte surgery — not every rejection means the same thing</h2>
- <p>Change any single byte of the genuine signature and see <em>which</em> rule turned it down. A corrupted first half fails to decode, a corrupted second half fails the equation, and an out-of-range <strong>S</strong> fails the range rule. They are different failures, and this verifier keeps them apart on purpose: one that reported them all as "invalid" would tell you less.</p>
+ <p>Change any single byte of the genuine signature and see <em>which</em> rule turned it down. A corrupted first half fails to decode <em>or</em> fails the equation — only about half of all 32-byte strings are valid point encodings, so roughly half of these edits still decode, to a different point, and are turned down by the group equation instead. A corrupted second half fails the equation, and an out-of-range <strong>S</strong> fails the range rule. They are different failures, and this verifier keeps them apart on purpose: one that reported them all as "invalid" would tell you less.</p>
  <div class="surgery-controls">
   <label for="surgery-index">Signature byte (0–63)</label>
   <input id="surgery-index" type="number" min="0" max="63" value="32" step="1">

@@ -46,6 +46,13 @@ function decode(bytes: Uint8Array): Point {
  if ((x & 1n) !== sign) x = P - x;
  return { x, y, z: 1n, t: mod(x * y) };
 }
+/** Does this 32-byte string decode as a curve point? Read-only view of the same
+ * strict decoder `verify` uses — no acceptance logic of its own. Exists because
+ * "a corrupted R fails to decode" is only true about half the time, and Exhibit
+ * 05's wording has to be checkable. */
+export function decodesAsPoint(bytes: Uint8Array): boolean {
+ try { decode(bytes); return true; } catch { return false; }
+}
 function add(p: Point, q: Point): Point {
  // Complete twisted-Edwards extended-coordinate addition (a = -1).
  const a = mod((p.y - p.x) * (q.y - q.x));

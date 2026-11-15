@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createPublicKey, verify as nativeVerify } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { verify, unhex, hex, fromLE, toLE, L, P, canonicalScalar } from './ed25519';
+import { verify, unhex, hex, fromLE, toLE, L, P, canonicalScalar, decodesAsPoint } from './ed25519';
 import experiment from '../../fixtures/experiment.json';
 import vectors from '../../fixtures/rfc8032.json';
 import pair from '../../fixtures/wycheproof-pair.json';
@@ -93,4 +93,33 @@ describe('canonical scalar boundaries and earlier failures',()=>{
  });
  it('hex parser refuses ambiguous malformed input',()=>{expect(()=>unhex('f')).toThrow();expect(()=>unhex('zz')).toThrow();expect(unhex('')).toHaveLength(0);});
  it('LE conversion round-trips and refuses overflow',()=>{expect(fromLE(toLE(L))).toBe(L);expect(()=>toLE(1n<<256n)).toThrow();expect(()=>toLE(-1n)).toThrow();});
+});
+describe('Exhibit 05: a corrupted R does not always fail to decode',()=>{
+ // About half of all 32-byte strings are valid point encodings, so about half
+ // of the single-byte edits to R survive the decoder and are then turned down
+ // by the GROUP EQUATION, not by decoding. Counted over all 32 x 255 = 8,160
+ // edits with this lab's own decoder; the exhibit's prose therefore has to say
+ // "fails to decode OR fails the equation", not "fails to decode".
+ const countDecodable=(signature:string)=>{
+  const sig=unhex(signature);
+  let decoded=0;
+  for(let i=0;i<32;i++)for(let b=0;b<256;b++){
+   if(b===sig[i])continue;
+   const s=Uint8Array.from(sig);s[i]=b;
+   if(decodesAsPoint(s.slice(0,32)))decoded++;
+  }
+  return decoded;
+ };
+ it('4,070 of the 8,160 single-byte changes to R still decode (RFC 8032 §7.1 TEST 1)',()=>{
+  const decoded=countDecodable(vectors[0].signature);
+  expect(decoded).toBe(4070);
+  expect(8160-decoded).toBe(4090);
+ },300_000);
+ it('the signature the exhibit itself edits behaves the same way',()=>{
+  // "roughly half" on the page, for the Wycheproof signature Exhibit 05
+  // actually edits — a band, because the exact count is signature-specific.
+  const decoded=countDecodable(experiment.canonical);
+  expect(decoded).toBeGreaterThan(3500);
+  expect(decoded).toBeLessThan(4700);
+ },300_000);
 });

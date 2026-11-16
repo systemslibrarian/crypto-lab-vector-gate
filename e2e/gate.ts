@@ -4,6 +4,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 import { auditContrast, formatContrastFailures } from './contrast';
+import { auditControlNames, formatControlNameFailures } from './control-names';
 import { auditNonText, formatNonTextFailures } from './nontext';
 export const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 export const NARROW = { width: 380, height: 800 };
@@ -29,6 +30,10 @@ export async function scan(page: Page,label: string) {
  expect([...wcag.incomplete,...landmarks.incomplete].filter(v=>v.id!=='color-contrast').map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),`unexplained axe incomplete: ${label}`).toEqual([]);
  expect(formatContrastFailures(await auditContrast(page)),`measured text contrast: ${label}`).toEqual([]);
  expect(formatContrastFailures(await auditContrast(page,'[aria-hidden="true"], [aria-hidden="true"] *',true)),`aria-hidden contrast: ${label}`).toEqual([]);
+ // axe's `label` rule accepts a bare `placeholder` as an accessible name, so a
+ // deleted label can leave this gate green. See `control-names.ts`.
+ const unnamed = formatControlNameFailures(await auditControlNames(page));
+ expect(unnamed,`form controls named only by placeholder/title: ${label}`).toEqual([]);
  expect(formatNonTextFailures(await auditNonText(page)),`non-text contrast: ${label}`).toEqual([]);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`page reflow: ${label}`).toBe(true);
  const unreachable=await page.locator('.byte-panel').evaluateAll(nodes=>nodes.filter(n=>n.scrollWidth>n.clientWidth&&(!(n as HTMLElement).hasAttribute('tabindex')||!n.hasAttribute('aria-label'))).length);

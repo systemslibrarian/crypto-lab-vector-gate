@@ -1,0 +1,278 @@
+{
+ "note": "Known-answer vectors for the negative-test bench, recorded from this lab's own toy implementations as shipped (unrepaired). They are not published vectors and come from no NGCC package. The RFC 8032 inputs for the first case are in fixtures/rfc8032.json; only the wrapper's return value is recorded here.",
+ "recordedBy": "tools/record-bench-kats.mjs",
+ "cases": {
+  "verifier-returns-success": [
+   {
+    "name": "RFC 8032 TEST 1",
+    "expected": "0"
+   },
+   {
+    "name": "RFC 8032 TEST 2",
+    "expected": "0"
+   },
+   {
+    "name": "RFC 8032 TEST 3",
+    "expected": "0"
+   },
+   {
+    "name": "RFC 8032 TEST 1024",
+    "expected": "0"
+   },
+   {
+    "name": "RFC 8032 TEST SHA(abc)",
+    "expected": "0"
+   }
+  ],
+  "rejection-never-applied": [
+   {
+    "name": "vector 1: public key",
+    "expected": "55a22c28d0eb9c8c75ad2e3089de0eea8fb3e4322dd8ed6f384aeb42721fbee5"
+   },
+   {
+    "name": "vector 1: ciphertext",
+    "expected": "bfbbef0ed4b2cdf882e79540380773a49da3ea45bb71f3f07e4bf8a32f28787fdd4664e04fb703f4398da2130fd12305c5130a77f2e8f6f8acb132b44a4f16d4"
+   },
+   {
+    "name": "vector 1: encapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 1: decapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 2: public key",
+    "expected": "a087b0598d9716bd716ac1ea21e31877780f9e92963d77f9176ff05c3d7d4155"
+   },
+   {
+    "name": "vector 2: ciphertext",
+    "expected": "ca62d298b85c5e54fc8981ff5a9437367c0ad4fd908a6769af01787aae29096815816f78fee529183c4485a727f230f9a6dcc8f3cbed589ef73fe4989406843c"
+   },
+   {
+    "name": "vector 2: encapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 2: decapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 3: public key",
+    "expected": "7a1d0abb4acb8c0c2001cf014838f19576c88e1b2a44894861ad2d4ffb7a3b3f"
+   },
+   {
+    "name": "vector 3: ciphertext",
+    "expected": "c0466e3f20c5579abc35b7251e7b1e730c41807cfe6b7c2e73541d1a9ec2474f3ab0673db9dd7516cc5b0cd78ece7ddc62ff5f8235de03f2f0cbf1e5f3c9e9b1"
+   },
+   {
+    "name": "vector 3: encapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   },
+   {
+    "name": "vector 3: decapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   }
+  ],
+  "rejection-mask-partial": [
+   {
+    "name": "vector 1: public key",
+    "expected": "55a22c28d0eb9c8c75ad2e3089de0eea8fb3e4322dd8ed6f384aeb42721fbee5"
+   },
+   {
+    "name": "vector 1: ciphertext",
+    "expected": "bfbbef0ed4b2cdf882e79540380773a49da3ea45bb71f3f07e4bf8a32f28787fdd4664e04fb703f4398da2130fd12305c5130a77f2e8f6f8acb132b44a4f16d4"
+   },
+   {
+    "name": "vector 1: encapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 1: decapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 2: public key",
+    "expected": "a087b0598d9716bd716ac1ea21e31877780f9e92963d77f9176ff05c3d7d4155"
+   },
+   {
+    "name": "vector 2: ciphertext",
+    "expected": "ca62d298b85c5e54fc8981ff5a9437367c0ad4fd908a6769af01787aae29096815816f78fee529183c4485a727f230f9a6dcc8f3cbed589ef73fe4989406843c"
+   },
+   {
+    "name": "vector 2: encapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 2: decapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 3: public key",
+    "expected": "7a1d0abb4acb8c0c2001cf014838f19576c88e1b2a44894861ad2d4ffb7a3b3f"
+   },
+   {
+    "name": "vector 3: ciphertext",
+    "expected": "c0466e3f20c5579abc35b7251e7b1e730c41807cfe6b7c2e73541d1a9ec2474f3ab0673db9dd7516cc5b0cd78ece7ddc62ff5f8235de03f2f0cbf1e5f3c9e9b1"
+   },
+   {
+    "name": "vector 3: encapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   },
+   {
+    "name": "vector 3: decapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   }
+  ],
+  "compare-every-fourth-byte": [
+   {
+    "name": "vector 1: public key",
+    "expected": "55a22c28d0eb9c8c75ad2e3089de0eea8fb3e4322dd8ed6f384aeb42721fbee5"
+   },
+   {
+    "name": "vector 1: ciphertext",
+    "expected": "bfbbef0ed4b2cdf882e79540380773a49da3ea45bb71f3f07e4bf8a32f28787fdd4664e04fb703f4398da2130fd12305c5130a77f2e8f6f8acb132b44a4f16d4"
+   },
+   {
+    "name": "vector 1: encapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 1: decapsulated secret",
+    "expected": "98564d12aeb90a7326379e699991fec9c202df878be651a352261989e9f06985"
+   },
+   {
+    "name": "vector 2: public key",
+    "expected": "a087b0598d9716bd716ac1ea21e31877780f9e92963d77f9176ff05c3d7d4155"
+   },
+   {
+    "name": "vector 2: ciphertext",
+    "expected": "ca62d298b85c5e54fc8981ff5a9437367c0ad4fd908a6769af01787aae29096815816f78fee529183c4485a727f230f9a6dcc8f3cbed589ef73fe4989406843c"
+   },
+   {
+    "name": "vector 2: encapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 2: decapsulated secret",
+    "expected": "255a4b2813d18a8ea2755e8f7781133ae346e381ff95fdca7c2a1cffdfc6c9a6"
+   },
+   {
+    "name": "vector 3: public key",
+    "expected": "7a1d0abb4acb8c0c2001cf014838f19576c88e1b2a44894861ad2d4ffb7a3b3f"
+   },
+   {
+    "name": "vector 3: ciphertext",
+    "expected": "c0466e3f20c5579abc35b7251e7b1e730c41807cfe6b7c2e73541d1a9ec2474f3ab0673db9dd7516cc5b0cd78ece7ddc62ff5f8235de03f2f0cbf1e5f3c9e9b1"
+   },
+   {
+    "name": "vector 3: encapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   },
+   {
+    "name": "vector 3: decapsulated secret",
+    "expected": "55db514beb25abb2111ef595356cffff0a278e719efcb12e794d3068292a7131"
+   }
+  ],
+  "challenge-read-mod-2": [
+   {
+    "name": "vector 1: public key",
+    "expected": "12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289"
+   },
+   {
+    "name": "vector 1: signature",
+    "expected": "56,731,608,733,-577,-981,-274,-273,-768,-100,-827,135,877,-937,-963,994 | 1,1,1,0,0,-1,1,1,-1,1,1,0,1,-1,-1,1"
+   },
+   {
+    "name": "vector 1: verifies",
+    "expected": "true"
+   },
+   {
+    "name": "vector 2: public key",
+    "expected": "12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289"
+   },
+   {
+    "name": "vector 2: signature",
+    "expected": "773,-3,-784,-989,-597,31,882,-971,-700,-902,-377,-368,-667,561,-623,969 | 1,1,1,-1,0,0,1,0,1,-1,1,1,0,-1,-1,0"
+   },
+   {
+    "name": "vector 2: verifies",
+    "expected": "true"
+   },
+   {
+    "name": "vector 3: public key",
+    "expected": "12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289,12289"
+   },
+   {
+    "name": "vector 3: signature",
+    "expected": "799,617,-288,-577,-432,546,757,481,872,-6,-680,-775,471,-710,-376,750 | -1,0,1,-1,-1,-1,0,0,1,0,1,1,-1,0,1,1"
+   },
+   {
+    "name": "vector 3: verifies",
+    "expected": "true"
+   }
+  ],
+  "bits-versus-bytes": [
+   {
+    "name": "vector 1: ephemeral secret",
+    "expected": "77d24a7d3a1e6f084f4f6c57bbfa3846a5d5c6ee8c89df4e1c0a025fe19ca728"
+   },
+   {
+    "name": "vector 2: ephemeral secret",
+    "expected": "a99401f7d8d4f71345c13d3ab14d7f9e63a74f903131a3993ea4caf6036365dd"
+   },
+   {
+    "name": "vector 3: ephemeral secret",
+    "expected": "8ae6c9f2cbb77d75ec06d6182b725bb19eacd38cdd47ed93e029271bd241e108"
+   }
+  ],
+  "keygen-ignores-rng": [
+   {
+    "name": "seed 1: public key",
+    "expected": "9868ccb5f79722483b987907af5a52e47ea4521bc2336e4497584d2493ec2c97"
+   },
+   {
+    "name": "seed 1: secret key",
+    "expected": "f9802985c5ead32a7c46ef32bdb8b9e6068f3f4a4889f42658a90ae80e96a491"
+   },
+   {
+    "name": "seed 2: public key",
+    "expected": "9868ccb5f79722483b987907af5a52e47ea4521bc2336e4497584d2493ec2c97"
+   },
+   {
+    "name": "seed 2: secret key",
+    "expected": "f9802985c5ead32a7c46ef32bdb8b9e6068f3f4a4889f42658a90ae80e96a491"
+   },
+   {
+    "name": "seed 3: public key",
+    "expected": "9868ccb5f79722483b987907af5a52e47ea4521bc2336e4497584d2493ec2c97"
+   },
+   {
+    "name": "seed 3: secret key",
+    "expected": "f9802985c5ead32a7c46ef32bdb8b9e6068f3f4a4889f42658a90ae80e96a491"
+   }
+  ],
+  "padding-collision": [
+   {
+    "name": "empty message",
+    "expected": "3ba87b439c7e38b2fa398c1789eb35d2521e7deb491dd2275969008afa47558b"
+   },
+   {
+    "name": "\"abc\"",
+    "expected": "e1afbaf320dccef0013d10fb88704780de348165551dc808120c97a3063e1546"
+   },
+   {
+    "name": "one byte 00",
+    "expected": "bea462a5b84ecc9b1d5b307ef2a7cb5e62b597a6535061b5f07f130cfc9ef616"
+   },
+   {
+    "name": "three bits 101",
+    "expected": "42e048b2dc64d6b6e03d01a2b2c66bcb7f76d59acf7d85c51a75639137eddf4f"
+   },
+   {
+    "name": "twelve bits",
+    "expected": "8265746e63ad5d72353f5289c9e1e6ede6faa2eb769b861f1c4e1e00c0019b51"
+   }
+  ]
+ }
+}

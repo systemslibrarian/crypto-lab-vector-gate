@@ -37,7 +37,20 @@ const cases=[
     requires for that case, a required REJECTION included. Painting a required
     rejection as neutral is what this page used to do -- two rejections, two
     colours, and no key anywhere saying why they differed. */
- {id:'M13',file:'src/main.ts',anchor:'const asRequired = evaluated && r.accepted !== mustReject;',replace:'const asRequired = evaluated && r.accepted;',test:'single-predicate repair changes',kind:'browser'}
+ {id:'M13',file:'src/main.ts',anchor:'const asRequired = evaluated && r.accepted !== mustReject;',replace:'const asRequired = evaluated && r.accepted;',test:'single-predicate repair changes',kind:'browser'},
+ /* --- Exhibit 07, the negative-test bench. Three toys (M21, M25, M26) and the
+    three things the page renders about them (M22-M24). --- */
+ /* The repaired wrapper must really return the verdict. */
+ {id:'M21',file:'src/bench/cases.ts',anchor:'if (repaired) return result;',replace:'if (repaired) return 0;',test:'verifier wrapper: accepts a corrupted signature',kind:'unit'},
+ /* A verdict painted FAIL regardless of what the negative test found. */
+ {id:'M22',file:'src/bench/ui.ts',anchor:"host.dataset.outcome = outcome.passed ? 'PASS' : 'FAIL';",replace:"host.dataset.outcome = 'FAIL';",test:'bench: the repair makes each negative test pass',kind:'browser'},
+ /* A verdict computed under one setting left standing under the other. */
+ {id:'M23',file:'src/bench/ui.ts',anchor:"negative.dataset.outcome = 'NOT-RUN';",replace:"// mutation: keep the verdict from the other setting",test:'bench: the repair makes each negative test pass',kind:'browser'},
+ /* The known-answer line claiming a match it did not measure. */
+ {id:'M24',file:'src/bench/ui.ts',anchor:'const all = matched === kats.length;',replace:'const all = true;',test:'bench: the repair makes each negative test pass',kind:'browser'},
+ /* Removing the bug from the shipped toy: its negative test must notice. */
+ {id:'M25',file:'src/bench/cases.ts',anchor:"const step = flavour === 'every-fourth' ? 4 : 1;",replace:'const step = 1;',test:'every fourth byte: 24 undetected changes',kind:'unit'},
+ {id:'M26',file:'src/bench/cases.ts',anchor:'out[whole] = repaired ? 0x80 : 0x01;',replace:'out[whole] = 0x80;',test:'padding: one collision among the 511',kind:'unit'}
 ];
 function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:withoutLocalPaths((r.stdout??'')+(r.stderr??''),ROOT)};}
 function hash(){return createHash('sha256').update(readdirSync('dist/assets').filter(n=>/\.(css|js)$/.test(n)).sort().map(n=>readFileSync('dist/assets/'+n)).join('\n')).digest('hex');}

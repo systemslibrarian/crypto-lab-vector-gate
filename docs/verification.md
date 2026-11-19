@@ -11,3 +11,14 @@ src/main.ts renders the computed decisions separately from RFC expectations and 
 The claims suite drives the production build and checks identical hostile bytes, outcomes, scalar differences, equation sides, independent Node/OpenSSL verification, parallel evidence cards, runtime requests, retirement and no-op behavior. The WCAG suite additionally exercises keyboard controls and rendered states at three widths. The mutation runner edits source, builds it, proves the served bundle changed, observes the owning test fail and restores the exact source and bundle.
 
 See source-lock.md for pinned external sources and oracle versions.
+
+## The negative-test bench
+
+Exhibit 07 is separate from the verifier experiment above: it does not read the scalar-range switch and nothing above reads it. src/bench/cases.ts holds eight toy implementations, each with one bug and a repaired flag. Each exposes two computations: its known-answer outputs, and one negative test that returns measurements and a pass/fail.
+
+The stored vectors in fixtures/bench-kats.json are written by tools/record-bench-kats.mjs from the toys as shipped, twice, and the script refuses to write if the two runs disagree. The page compares what each toy produces now with those stored values, so "the vectors match" is a comparison and not an assertion. With the repair selected the same comparison is run again; where it stops matching, the page says the vectors were recorded from the buggy code.
+
+src/bench/ui.ts renders each card. Selecting or clearing the repair retires any negative-test verdict computed under the other setting before the vectors are compared again, and a per-card generation counter discards a late result. The closing counts (how many repairs keep the vectors) are derived from the case list.
+
+src/bench/cases.test.ts checks every card in both directions and pins the structural measurements. e2e/bench.spec.ts drives the production build. The WCAG gate drives one card through each state it can render.
+

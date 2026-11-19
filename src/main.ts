@@ -2,6 +2,7 @@ import './style.css';
 import f from '../fixtures/experiment.json';
 import kats from '../fixtures/rfc8032.json';
 import { verify, unhex, hex, toLE, fromLE, L, type Verification } from './crypto/ed25519';
+import { benchMarkup, mountBench } from './bench/ui';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const bytes = (label: string, value: string, id = '') => `<div class="byte-field"><span>${label}</span><code ${id ? `id="${id}"` : ''}>${value}</code></div>`;
@@ -146,6 +147,8 @@ app.innerHTML = `
  <p class="limitation">This educational exhibit is not ACVTS or an accredited NVLAP laboratory. It issues no NIST algorithm validation or CAVP certificate, and no CMVP or FIPS 140-3 module certificate. It is not production crypto.</p>
 </section>
 
+${benchMarkup()}
+
 <section class="exhibit" aria-labelledby="compiler-preservation-heading"><h2 id="compiler-preservation-heading">One named compiler preservation result</h2>
  <p><a href="https://arxiv.org/abs/2511.11292v2" target="_blank" rel="noopener noreferrer">KEM-IND-CCA-Preserving Compilation of Jasmin's ML-KEM</a> (version 2, pp. 2, 6–7, 13) proves preservation of a game-based result through a specific Jasmin compilation path. Source and compiled challengers have equal advantage for the same abstract adversary under the stated safety, stack and pointer-separation conditions. This is not a new ML-KEM hardness proof.</p>
  <div class="table-scroll" tabindex="0" role="region" aria-label="Compiler evidence dependencies"><table><caption>Evidence and dependencies answer different questions</caption><thead><tr><th scope="col">Evidence or dependency</th><th scope="col">Scope</th></tr></thead><tbody>
@@ -168,6 +171,10 @@ app.innerHTML = `
  <p><a href="https://systemslibrarian.github.io/crypto-lab-ed25519-forge/">Ed25519 Forge</a> owns the ZIP215/cofactor comparison. <a href="https://systemslibrarian.github.io/crypto-lab-corrupted-oracle/">Corrupted Oracle</a> and <a href="https://systemslibrarian.github.io/crypto-lab-drbg-arena/">DRBG Arena</a> address generator evidence. <a href="https://systemslibrarian.github.io/crypto-lab-aegis-gate/">AEGIS Gate</a> and <a href="https://systemslibrarian.github.io/crypto-lab-air-stream/">Air Stream</a> expose named vectors. <a href="https://systemslibrarian.github.io/crypto-lab-export-grade/">Export Grade</a> studies a weak construction.</p>
  <p>This lab focuses on the scope of conformance and validation evidence; related fleet exhibits cover different testing and implementation failures. The README records what this lab deliberately does not contain.</p></section>
 <footer class="scripture-footer"><p>So whether you eat or drink or whatever you do, do it all for the glory of God. — 1 Corinthians 10:31</p></footer>`;
+
+/* Exhibit 07 runs on its own: it does not read the switch above, and nothing
+   above reads it. */
+mountBench();
 
 /* The evidence table. The CAVP/CMVP wording is exact and must stay exact. */
 const cards = [

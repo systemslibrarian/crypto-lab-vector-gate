@@ -168,3 +168,19 @@ test('bench: it is independent of the switch above, and carries its status and l
   // The bench does not push the page sideways.
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 });
+
+test('bench: the card whose candidate has a later revision says which package it describes', async ({ page }) => {
+  await ready(page);
+  // Exactly one card carries the note, and it is the Aigis-Enc+ one.
+  await expect(page.locator('.bench-case [data-field="later-revision"]')).toHaveCount(1);
+  const note = card(page, 'rejection-never-applied').locator('[data-field="later-revision"]');
+  await expect(note).toContainText('later author revision of Aigis-Enc+');
+  await expect(note).toContainText('This card describes the round-one package the report examined.');
+  await expect(note).toContainText('The revision was not examined here');
+  // It is labelled as coming after the report, not as something the report says.
+  await expect(note.locator('xpath=preceding-sibling::dt[1]')).toHaveText('Since the report');
+  // The survey the exhibit takes its first-week figures from is linked, not only named.
+  await expect(page.locator('#negative-bench a[href="https://eprint.iacr.org/2026/2266"]')).toContainText(
+    'Chinese NGCC Algorithms: The First Week of AI Cryptanalysis',
+  );
+});

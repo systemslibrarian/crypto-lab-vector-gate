@@ -54,6 +54,9 @@ export interface BenchCase {
   primaryScope: 'implementation' | 'design';
   /** What the primary report says, restated without figures of this lab's own. */
   reported: string;
+  /** A later author revision known from a source other than the report. The
+   *  card describes the round-one package the report examined, and says so. */
+  laterRevision?: string;
   negativeTest: string;
   repair: string;
   /** Whether the vectors recorded from the shipped code still match after the repair. */
@@ -230,6 +233,7 @@ const deadRejection: BenchCase = {
   reportUrl: report('kem-01'),
   primaryScope: 'implementation',
   reported: 'Decapsulation writes the candidate secret to the output before checking the re-encrypted ciphertext; on failure the intended constant-time replacement writes into the wrong buffer. An exhaustive sweep of one parameter set found 5,632 of 7,168 single-bit ciphertext changes returning the original shared secret.',
+  laterRevision: 'A public catalog of candidate sources lists a later author revision of Aigis-Enc+, posted to the NGCC forum (catalog entry checked 20 October 2026). This card describes the round-one package the report examined. The revision was not examined here, so this lab does not know whether it still has the bug.',
   negativeTest: 'Flip each ciphertext bit in turn. The shared secret must change every time.',
   repair: 'Select the output after the comparison.',
   repairKeepsVectors: true,

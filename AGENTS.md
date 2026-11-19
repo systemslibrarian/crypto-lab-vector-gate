@@ -12,6 +12,14 @@ The shipped theme is dark only, as required by the master template. Broken mode 
 an explicit learner action. Do not add a theme switch, second crypto centerpiece, or a
 validation badge. Keep equation results, scalar range, final decision, and evidence scope separate.
 
+The Ed25519 S < L experiment is the lab's only centerpiece and stays the only one. Exhibit 07,
+the negative-test bench (src/bench/), is an owner-approved bench of the same lesson: eight
+toys whose stored vectors match while one negative test fails. The owner approved it on
+2026-11-19 (UTC) with pull request #19. It is not a second centerpiece and must not become
+one: it stays independent of the scalar-range switch, lives outside src/crypto/, calls the one
+verifier and never forks it, and labels every toy as modelled. Do not add any further
+primitive, toy, card or experiment to this lab, in the bench or anywhere else.
+
 Run npm test, npm run build, npm run test:a11y, and npm run test:mutations.
 Commit reviewed real work before mutation runs. Mutations must always restore the source;
 a missing browser or failed server is BLOCKED, never a mutation kill.

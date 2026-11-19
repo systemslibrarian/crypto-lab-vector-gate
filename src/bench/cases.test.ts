@@ -84,6 +84,16 @@ describe('the bench as a whole', () => {
     expect(BENCH_CASES.filter((c) => c.primaryScope === 'design').map((c) => c.id)).toEqual(['challenge-read-mod-2']);
   });
 
+  it('says so on the one card whose candidate has a later revision it did not examine', () => {
+    const noted = BENCH_CASES.filter((c) => c.laterRevision !== undefined);
+    expect(noted.map((c) => c.modelledOn)).toEqual(['Aigis-Enc+']);
+    const note = noted[0].laterRevision as string;
+    expect(note).toContain('This card describes the round-one package the report examined.');
+    expect(note).toContain('The revision was not examined here');
+    // Dated, because "latest revision" is a statement about a moment.
+    expect(note).toContain('20 October 2026');
+  });
+
   it('stores vectors for every case, written by the recording script', () => {
     expect(recorded.recordedBy).toBe('tools/record-bench-kats.mjs');
     expect(Object.keys(recorded.cases).sort()).toEqual(BENCH_CASES.map((c) => c.id).sort());

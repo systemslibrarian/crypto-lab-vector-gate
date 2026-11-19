@@ -21,7 +21,7 @@ function caseMarkup(benchCase: BenchCase, index: number): string {
     <dt>The toy</dt><dd>${escapeHtml(benchCase.toy)}</dd>
     <dt>The bug</dt><dd>${escapeHtml(benchCase.bug)}</dd>
     <dt>What the report says</dt><dd>${escapeHtml(benchCase.reported)}</dd>
-    <dt>The negative test</dt><dd>${escapeHtml(benchCase.negativeTest)}</dd>
+${benchCase.laterRevision ? `    <dt>Since the report</dt><dd data-field="later-revision">${escapeHtml(benchCase.laterRevision)}</dd>\n` : ''}    <dt>The negative test</dt><dd>${escapeHtml(benchCase.negativeTest)}</dd>
    </dl>
    <label class="bench-repair"><input type="checkbox" data-action="repair"> Use the repaired implementation: ${escapeHtml(benchCase.repair.charAt(0).toLowerCase() + benchCase.repair.slice(1))}</label>
    <p class="bench-kat" data-field="kat" role="status" aria-live="polite">Known-answer tests: running…</p>
@@ -45,7 +45,7 @@ export function benchMarkup(): string {
  <div class="bench-grid">${BENCH_CASES.map(caseMarkup).join('')}</div>
  <p id="bench-tally" class="bench-tally" role="status" aria-live="polite">Known-answer tests: running…</p>
  <p>Two things to notice once you have run them. First, the repair is one line in every case, and <span id="bench-keeps">${keeps} of the ${total}</span> repairs leave the stored vectors matching, so the vectors were never testing the property that failed. Second, the other <span id="bench-breaks">${total - keeps}</span> repairs make the stored vectors <em>stop</em> matching: the vectors were recorded from the buggy code and encode the bug. Passing them is then evidence that the bug is still there.</p>
- <p>The two rejection cases are the subject of <a href="https://systemslibrarian.github.io/crypto-lab-kem-trap/">KEM Trap</a>, which works through implicit rejection on a real KEM. Sources: the candidate reports at <a href="https://ngcc.dev/reports/index.html" target="_blank" rel="noopener noreferrer">ngcc.dev</a>, linked from each case; and M.-J. O. Saarinen, <em>Chinese NGCC Algorithms: The First Week of AI Cryptanalysis</em> (29 September 2026), abstract, §2.1, §2.3, §3 and Table 2, for the first-week figures and the severity definition.</p>
+ <p>The two rejection cases are the subject of <a href="https://systemslibrarian.github.io/crypto-lab-kem-trap/">KEM Trap</a>, which works through implicit rejection on a real KEM. Sources: the candidate reports at <a href="https://ngcc.dev/reports/index.html" target="_blank" rel="noopener noreferrer">ngcc.dev</a>, linked from each case; and M.-J. O. Saarinen, <a href="https://eprint.iacr.org/2026/2266" target="_blank" rel="noopener noreferrer"><em>Chinese NGCC Algorithms: The First Week of AI Cryptanalysis</em></a> (ePrint 2026/2266, 29 September 2026), abstract, §2.1, §2.3, §3 and Table 2, for the first-week figures and the severity definition.</p>
 </section>`;
 }
 

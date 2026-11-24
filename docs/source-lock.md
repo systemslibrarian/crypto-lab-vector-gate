@@ -59,7 +59,7 @@ Primary source: the candidate reports at https://ngcc.dev/reports/index.html (ma
 - kem-17-1 HEP-QC, sign-33-1 VDOO, sign-12-1 Galas, 2026-09-21, Critical / implementation / Confirmed, credited with AI assistance: key generation uses a zero-initialised or zero-seeded private generator and never reads the API generator.
 - hash-09-1, Eijen, 2026-09-21, Critical / implementation / Confirmed, credited with AI assistance: the empty string and seven zero bits collide because two bit-order conventions meet in the padding. hash-17-1 (MasterCube) is a related but different padding collapse and is mentioned, not modelled.
 
-Secondary source: M.-J. O. Saarinen, "Chinese NGCC Algorithms: The First Week of AI Cryptanalysis", ePrint 2026/2266 (https://eprint.iacr.org/2026/2266), 29 September 2026 (abstract, sections 2.1, 2.3, 3, Table 2), for the first-week counts and the severity definition.
+Secondary source: M.-J. O. Saarinen, "Chinese NGCC Algorithms: The First Week of AI Cryptanalysis", ePrint 2026/2266 (https://eprint.iacr.org/2026/2266), 29 September 2026 (abstract, sections 2.1, 2.4, 3, Table 2), for the first-week counts and the severity definition.
 
 Not used: a press summary dated 23 September 2026 gives 104 findings against 65 candidates, 61 implementation and 43 design, from a build of the tracker at 07:33 UTC that day. The tracker's index on 18 November 2026 shows 90 findings dated up to 22 September and 140 dated up to 23 September, so those four figures could not be matched to the primary source and do not appear on the page.
 

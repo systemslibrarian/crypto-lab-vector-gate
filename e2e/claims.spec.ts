@@ -216,4 +216,100 @@ test('the scope exercise scores the learner against the reference answer',async(
  await expect(page.locator('#answer-rfc')).toHaveAttribute('data-correct','true');
  await expect(page.locator('#answer-repair')).toHaveAttribute('data-correct','false');
  await expect(page.locator('#evidence-cards')).toBeVisible();
+ await page.locator('input[name="scope-rfc"][value="4"]').check();
+ await expect(page.locator('#scope-score')).toHaveAttribute('data-score','1');
+ await expect(page.locator('#answer-rfc')).toHaveAttribute('data-correct','false');
+ await page.locator('input[name="scope-repair"][value="0"]').check();
+ await expect(page.locator('#scope-score')).toHaveAttribute('data-score','2');
+ await expect(page.locator('#answer-repair')).toHaveAttribute('data-correct','true');
+});
+
+test('byte surgery refuses empty, fractional and out-of-range inputs without a verifier verdict',async({page})=>{
+ await boot(page);
+ for(const [selector,invalid] of [
+  ['#surgery-index',''],['#surgery-index','0.5'],['#surgery-index','-1'],['#surgery-index','64'],
+  ['#surgery-value',''],['#surgery-value','1.5'],['#surgery-value','-1'],['#surgery-value','256']
+ ]){
+  await page.locator('#surgery-index').fill('32');
+  await page.locator('#surgery-value').fill('255');
+  await expect(page.locator('#surgery-result .decision')).toHaveCount(1);
+  await page.locator(selector).fill(invalid);
+  await expect(page.locator('#surgery-result')).toBeEmpty();
+  await expect(page.locator('#surgery-readout')).toContainText('No signature was checked');
+ }
+ // Restore may fix a missing byte VALUE, but must not invent a byte INDEX.
+ await page.locator('#surgery-index').fill('');
+ await page.locator('#surgery-reset').click();
+ await expect(page.locator('#surgery-result')).toBeEmpty();
+ await page.locator('#surgery-index').fill('32');
+ await page.locator('#surgery-reset').click();
+ await expect(page.locator('#surgery-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await expect(page.locator('#surgery-readout')).toContainText('unmodified canonical signature');
+});
+
+type DeferredDigestWindow = Window & { releaseOldDigest: () => Promise<void> };
+async function holdNextDigest(page: import('@playwright/test').Page): Promise<void> {
+ await page.evaluate(()=>{
+  const original=crypto.subtle.digest.bind(crypto.subtle);
+  let first=true;
+  Object.defineProperty(crypto.subtle,'digest',{configurable:true,value:(...args:[AlgorithmIdentifier,BufferSource])=>{
+   if(!first)return original(...args);
+   first=false;
+   return new Promise<ArrayBuffer>((resolve,reject)=>{
+    (window as unknown as DeferredDigestWindow).releaseOldDigest=async()=>{
+     Object.defineProperty(crypto.subtle,'digest',{configurable:true,value:original});
+     try{resolve(await original(...args));}catch(error){reject(error);}
+     await new Promise(done=>setTimeout(done,0));
+    };
+   });
+  }});
+ });
+}
+
+test('changing a forge scalar retires the old result and ignores an older delayed completion',async({page})=>{
+ await boot(page);
+ await holdNextDigest(page);
+ await page.locator('#forge-k').fill('1');
+ await expect(page.locator('#forge-result')).toBeEmpty();
+ await expect(page.locator('#forge-readout')).toContainText('Previous result retired');
+ await expect(page.locator('#forge-signature')).toHaveText('…');
+ await page.locator('#forge-k').fill('0');
+ await expect(page.locator('#forge-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await page.evaluate(()=>(window as unknown as DeferredDigestWindow).releaseOldDigest());
+ await expect(page.locator('#forge-k')).toHaveValue('0');
+ await expect(page.locator('#forge-k-value')).toHaveText('0');
+ await expect(page.locator('#forge-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await expect(page.locator('#forge-readout')).toContainText('k = 0 is the canonical signature');
+});
+
+test('changing a surgery byte retires the old result and ignores an older delayed completion',async({page})=>{
+ await boot(page);
+ await page.locator('#surgery-reset').click();
+ await expect(page.locator('#surgery-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await holdNextDigest(page);
+ await page.locator('#surgery-value').fill('7');
+ await expect(page.locator('#surgery-result')).toBeEmpty();
+ await expect(page.locator('#surgery-readout')).toContainText('Previous result retired');
+ await page.locator('#surgery-reset').click();
+ await expect(page.locator('#surgery-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await page.evaluate(()=>(window as unknown as DeferredDigestWindow).releaseOldDigest());
+ await expect(page.locator('#surgery-result .decision')).toHaveAttribute('data-outcome','ACCEPT');
+ await expect(page.locator('#surgery-readout')).toContainText('unmodified canonical signature');
+});
+
+test('an unexpected rejection of the genuine fixture is reported as a mismatch',async({page})=>{
+ await page.addInitScript(()=>{
+  const original=crypto.subtle.digest.bind(crypto.subtle);
+  Object.defineProperty(crypto.subtle,'digest',{configurable:true,value:(algorithm:AlgorithmIdentifier,data:BufferSource)=>{
+   const name=typeof algorithm==='string'?algorithm:algorithm.name;
+   return name==='SHA-512'?Promise.resolve(new Uint8Array(64).buffer):original(algorithm,data);
+  }});
+ });
+ await boot(page);
+ const canonical=page.locator('#case-results .case').nth(0);
+ await expect(canonical.locator('.decision')).toHaveAttribute('data-outcome','REJECT');
+ await expect(canonical.locator('.decision')).toHaveClass(/alarm/);
+ await expect(canonical.locator('.plain-verdict')).toContainText('expected to be accepted');
+ await expect(canonical.locator('.interpretation')).toContainText('did not match');
+ await expect(canonical).not.toContainText('This genuine signature was accepted');
 });

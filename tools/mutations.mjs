@@ -50,12 +50,18 @@ const cases=[
  {id:'M24',file:'src/bench/ui.ts',anchor:'const all = matched === kats.length;',replace:'const all = true;',test:'bench: the repair makes each negative test pass',kind:'browser'},
  /* Removing the bug from the shipped toy: its negative test must notice. */
  {id:'M25',file:'src/bench/cases.ts',anchor:"const step = flavour === 'every-fourth' ? 4 : 1;",replace:'const step = 1;',test:'every fourth byte: 24 undetected changes',kind:'unit'},
- {id:'M26',file:'src/bench/cases.ts',anchor:'out[whole] = repaired ? 0x80 : 0x01;',replace:'out[whole] = 0x80;',test:'padding: one collision among the 511',kind:'unit'}
+ {id:'M26',file:'src/bench/cases.ts',anchor:'out[whole] = repaired ? 0x80 : 0x01;',replace:'out[whole] = 0x80;',test:'padding: one collision among the 511',kind:'unit'},
+ {id:'M27',file:'src/evidence.ts',anchor:'passed: complete && matched === REQUIRED_RFC_CASES.length',replace:'passed: matched === results.length',test:'does not give a success verdict',kind:'unit'},
+ {id:'M28',file:'src/main.ts',anchor:"if (!document.querySelector<HTMLElement>('#evidence-cards')!.hidden) gradeScope();",replace:'// mutation: retain the old scope score',test:'scope exercise scores the learner',kind:'browser'},
+ {id:'M29',file:'src/main.ts',anchor:'Number.isInteger(value)',replace:'Number.isFinite(value)',test:'byte surgery refuses empty',kind:'browser'},
+ {id:'M30',file:'src/main.ts',anchor:'g !== generation || mine !== forgeGeneration',replace:'g !== generation',test:'changing a forge scalar retires',kind:'browser'},
+ {id:'M31',file:'src/main.ts',anchor:'g !== generation || mine !== surgeryGeneration',replace:'g !== generation',test:'changing a surgery byte retires',kind:'browser'},
+ {id:'M32',file:'src/main.ts',anchor:'const alarm = evaluated && !asRequired;',replace:'const alarm = mustReject && r.accepted;',test:'unexpected rejection of the genuine fixture',kind:'browser'}
 ];
 function run(args){const r=spawnSync('npm',args,{encoding:'utf8',timeout:240000,env:{...process.env,CI:'1'}});return {status:r.status,output:withoutLocalPaths((r.stdout??'')+(r.stderr??''),ROOT)};}
 function hash(){return createHash('sha256').update(readdirSync('dist/assets').filter(n=>/\.(css|js)$/.test(n)).sort().map(n=>readFileSync('dist/assets/'+n)).join('\n')).digest('hex');}
 function ensureBuild(){const r=run(['run','build']);if(r.status!==0)throw Error('DOES NOT BUILD: '+r.output);return hash();}
-const nonTestFailure=/Executable doesn't exist|browserType\.launch|Timed out waiting|webServer was not able|Connection refused|ERR_CONNECTION|Cannot find module|No tests found/;
+const nonTestFailure=/Executable doesn't exist|browserType\.launch|Timed out waiting|webServer was not able|Connection refused|ERR_CONNECTION|Cannot find module|No tests found|Target crashed|Target page, context or browser has been closed|Page crashed/;
 let failed=false;
 try{
  for(const c of cases.filter(c=>!unitOnly||c.kind==='unit')){

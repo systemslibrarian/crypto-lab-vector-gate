@@ -8,6 +8,8 @@ Both modes run that identical path. The acceptance expression is equation && (!e
 
 src/main.ts renders the computed decisions separately from RFC expectations and evidence interpretation. Broken-mode entry is explicit. Changing the checkbox retires every previous verdict and computed comparison before awaiting the next run. A generation counter discards an older completion if a newer run started. Re-entering the already selected broken mode is a no-op.
 
+The five-case RFC summary also checks that each required named case and result is present exactly once; an empty, shortened or duplicated collection cannot report complete evidence. Each forge-slider or byte-surgery edit immediately retires its prior result and advances its own generation counter, so an older asynchronous check cannot overwrite a newer choice. Byte surgery requires whole-number indices and byte values within the displayed ranges. Changing a revealed scope answer recomputes its grade and the total.
+
 The claims suite drives the production build and checks identical hostile bytes, outcomes, scalar differences, equation sides, independent Node/OpenSSL verification, parallel evidence cards, runtime requests, retirement and no-op behavior. The WCAG suite additionally exercises keyboard controls and rendered states at three widths. The mutation runner edits source, builds it, proves the served bundle changed, observes the owning test fail and restores the exact source and bundle.
 
 See source-lock.md for pinned external sources and oracle versions.

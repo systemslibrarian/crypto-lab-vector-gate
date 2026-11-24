@@ -3,6 +3,7 @@ import f from '../fixtures/experiment.json';
 import kats from '../fixtures/rfc8032.json';
 import { verify, unhex, hex, toLE, fromLE, L, type Verification } from './crypto/ed25519';
 import { benchMarkup, mountBench } from './bench/ui';
+import { summarizeRfcCases } from './evidence';
 
 const app = document.querySelector<HTMLElement>('#app')!;
 const bytes = (label: string, value: string, id = '') => `<div class="byte-field"><span>${label}</span><code ${id ? `id="${id}"` : ''}>${value}</code></div>`;
@@ -51,12 +52,12 @@ app.innerHTML = `
 <header class="cl-hero">
  <div class="cl-hero-main"><p class="eyebrow">SIGNATURES / A VERIFIER THAT ACCEPTS A FORGERY</p><h1 class="cl-hero-title">Vector Gate</h1>
  <p class="cl-hero-sub">Ed25519 · RFC 8032 §5.1.7 · Wycheproof</p>
- <p class="cl-hero-desc">Turn off one required check and watch this verifier accept a signature nobody ever signed — then build ${MAX_K} more of them yourself, and find out why a passing test suite never noticed.</p></div>
- <aside class="cl-hero-why" aria-label="Why it matters"><span class="eyebrow">WHY IT MATTERS</span><p>A signature is supposed to prove a specific person signed a specific message. A verifier that checks the equation and skips one range rule will accept signatures nobody signed — while every published test vector still passes.</p></aside>
+ <p class="cl-hero-desc">Turn off one required check and watch this verifier accept a signature nobody ever signed — then build the family of ${MAX_K} altered signatures yourself, and find out why the five named test vectors never noticed.</p></div>
+ <aside class="cl-hero-why" aria-label="Why it matters"><span class="eyebrow">WHY IT MATTERS</span><p>A signature binds a message to a signing key. A verifier that checks the equation and skips one range rule can accept new signature bytes for an already signed message — while all five named RFC vectors still pass. This is signature malleability; it does not sign a new message or identify the person who holds the key.</p></aside>
 </header>
 
 <section class="intro"><h2>Break the verifier, here, now</h2>
- <p class="plain">A signature is two numbers written side by side, called <strong>R</strong> and <strong>S</strong>. A verifier has two jobs: check that the pair fits the message and the key, and check that <strong>S</strong> is smaller than a fixed number called <strong>L</strong>. The second job is easy to leave out, and leaving it out is not visible from outside.</p>
+ <p class="plain">An Ed25519 signature has two parts: <strong>R</strong> encodes a point on the elliptic curve, and <strong>S</strong> is a number. After decoding the inputs, the verifier checks that the pair fits the message and the key, and that <strong>S</strong> is smaller than a fixed number called <strong>L</strong>. These five positive test vectors do not expose an omitted range check.</p>
  <p class="plain">The button below switches that second check off on this page. The signature bytes do not change. The verdict does.</p>
 
  <div class="switchboard">
@@ -78,7 +79,7 @@ app.innerHTML = `
 </section>
 
 <section class="exhibit" aria-labelledby="experiment-heading"><div class="section-label">EXHIBIT 02</div><h2 id="experiment-heading">The case those tests never asked about</h2>
- <p>Three signatures are checked here against the same key and the same message. The first is the genuine one. The second is the genuine one with a single bit of the message changed — the control, which any verifier must reject. The third is the forgery: byte for byte it shares the genuine signature's first half, and only its second number, <strong>S</strong>, is different. Watch what the switch above does to the third one.</p>
+ <p>Three cases use the same public key. The first uses the genuine signature and message. The second pairs that signature with a message whose first bit has changed — the control, which this verifier must reject. The third returns to the original message with an altered signature: byte for byte it shares the genuine signature's first half, and only its number <strong>S</strong> is different. Watch what the switch above does to the third case.</p>
 
  <p class="verdict-key">Colour here answers one question: <strong>did this verifier do what the specification requires for this case?</strong> Green is yes — including a rejection, when a rejection is what was required. Amber is no.</p>
  <div id="case-results" class="case-grid"></div>
@@ -213,22 +214,45 @@ const surgeryValue = document.querySelector<HTMLInputElement>('#surgery-value')!
    the specification requires for this fixture? A rejection that was required is
    the system working, whichever card it is on. */
 const resultMarkup = (name: string, r: Verification, mustReject = false) => {
-  const alarm = mustReject && r.accepted;
   const evaluated = r.stage === 'decision';
   const decision = r.accepted ? 'ACCEPT' : 'REJECT';
   const asRequired = evaluated && r.accepted !== mustReject;
+  const alarm = evaluated && !asRequired;
   const tone = alarm ? 'alarm' : asRequired ? 'pass' : 'neutral';
   return `<article class="case"><h3>${name}</h3><p class="decision ${tone}" data-verdict="decision" data-outcome="${decision}">${alarm ? '!' : r.accepted ? '✓' : '×'} ${decision}</p>
- <p class="plain-verdict">${!evaluated ? 'The verifier stopped before it reached these checks.' : alarm ? 'This verifier accepted it. The specification says it must not.' : r.accepted ? 'Accepted, and the specification says it should be.' : 'Rejected, and the specification says it must be.'}</p>
+ <p class="plain-verdict">${!evaluated ? 'The verifier stopped before it reached these checks.' : alarm ? r.accepted ? 'This verifier accepted it. The specification says it must not.' : 'This verifier rejected it. The genuine signature was expected to be accepted.' : r.accepted ? 'Accepted, and the specification says it should be.' : 'Rejected, and the specification says it must be.'}</p>
  <details class="why"><summary>What the verifier checked</summary><dl>
  <dt>Group equation</dt><dd data-field="equation">${r.equation === null ? 'NOT EVALUATED' : r.equation ? 'PASS' : 'FAIL'}</dd>
  <dt>Canonical S range</dt><dd data-field="range">${r.range === null ? 'NOT EVALUATED' : r.enforceRange ? r.range ? 'PASS' : 'FAIL' : 'NOT ENFORCED' + (r.range ? ' (in range)' : ' (out of range)')}</dd>
  <dt>Decision reason</dt><dd data-field="reason">${r.reason}</dd><dt>RFC requirement for this fixture</dt><dd>${mustReject ? 'REJECT REQUIRED' : 'ACCEPT EXPECTED'}</dd></dl></details>
- <p class="interpretation">${!evaluated ? 'Verification stopped before the equation and scalar-range checks. No evidence about those conditions was obtained.' : alarm ? 'The equation passed, but the verifier accepted a signature RFC 8032 requires it to reject.' : mustReject ? 'The case that had to be rejected was rejected. This result is evidence about this case.' : 'This genuine signature was accepted.'}</p></article>`;
+ <p class="interpretation">${!evaluated ? 'Verification stopped before the equation and scalar-range checks. No evidence about those conditions was obtained.' : alarm ? r.accepted ? 'The equation passed, but the verifier accepted a signature RFC 8032 requires it to reject.' : 'The computed result did not match the expected acceptance of this genuine signature.' : mustReject ? 'The case that had to be rejected was rejected. This result is evidence about this case.' : 'This genuine signature was accepted.'}</p></article>`;
 };
 
 let generation = 0;
+let forgeGeneration = 0;
+let surgeryGeneration = 0;
 let sawHostileAccepted = false;
+
+function retireForge(): void {
+  forgeGeneration += 1;
+  document.querySelector('#forge-result')!.replaceChildren();
+  document.querySelector('#forge-readout')!.textContent = 'Previous result retired. Checking the selected scalar…';
+  for (const id of ['#forge-scalar', '#forge-signature']) document.querySelector(id)!.textContent = '…';
+  document.querySelector('#forge-k-value')!.textContent = forgeK.value;
+}
+
+function retireSurgery(): void {
+  surgeryGeneration += 1;
+  document.querySelector('#surgery-result')!.replaceChildren();
+  const readout = document.querySelector('#surgery-readout')!;
+  readout.textContent = 'Previous result retired. Checking the selected byte…';
+  readout.removeAttribute('data-rule');
+}
+
+function byteInput(input: HTMLInputElement, maximum: number): number | undefined {
+  const value = input.valueAsNumber;
+  return input.value.trim() !== '' && Number.isInteger(value) && value >= 0 && value <= maximum ? value : undefined;
+}
 
 async function run(): Promise<void> {
   const g = ++generation;
@@ -249,8 +273,8 @@ async function run(): Promise<void> {
     document.querySelector(id)!.textContent = '…';
   }
   document.querySelector('#case-results')!.replaceChildren();
-  document.querySelector('#forge-result')!.replaceChildren();
-  document.querySelector('#surgery-result')!.replaceChildren();
+  retireForge();
+  retireSurgery();
   try {
     const results = await Promise.all(kats.map(v => verify(unhex(v.publicKey), unhex(v.message), unhex(v.signature), enforceRange)));
     const [canonical, hostile, negative] = await Promise.all([
@@ -259,10 +283,12 @@ async function run(): Promise<void> {
       verify(unhex(f.publicKey), unhex(f.negativeMessage), unhex(f.canonical), enforceRange)]);
     if (g !== generation) return;
 
-    const matched = results.filter(r => r.accepted).length;
+    const { matched, total, complete, passed } = summarizeRfcCases(kats, results);
     const summary = document.querySelector('#kat-summary')!;
-    summary.textContent = `RFC 8032 §7.1 — ${matched}/${kats.length} named vectors matched ${matched === kats.length ? '✓' : '×'}`;
-    summary.className = matched === kats.length ? 'pass kat-summary' : 'alarm kat-summary';
+    summary.textContent = complete
+      ? `RFC 8032 §7.1 — ${matched}/${total} named vectors matched ${passed ? '✓' : '×'}`
+      : 'RFC 8032 §7.1 — incomplete evidence for the five named vectors.';
+    summary.className = passed ? 'pass kat-summary' : 'alarm kat-summary';
     summary.setAttribute('data-verdict', 'kat'); summary.setAttribute('data-matched', String(matched));
     document.querySelector('#kat-results')!.innerHTML = results.map((r, i) => `<div class="kat"><strong>${kats[i].name}</strong><span>${kats[i].message.length / 2} message bytes</span><span data-verdict="kat-case">${r.accepted ? '✓ RFC vector matched' : '× RFC vector did not match'}</span></div>`).join('');
 
@@ -286,7 +312,7 @@ async function run(): Promise<void> {
     document.querySelector('#challenge-equal')!.textContent = canonical.challenge === hostile.challenge && canonical.challenge !== undefined ? '✓ k canonical = k hostile' : '× Challenges differ or were not evaluated';
     document.querySelector('#equation-equal')!.textContent = canonical.left === hostile.left && canonical.left !== undefined ? '✓ Computed [S]B = [S + L]B' : '× Left sides differ or were not evaluated';
 
-    document.querySelector('#mode')!.textContent = enforceRange ? 'The second check is ON — this verifier follows the specification.' : 'DELIBERATELY BROKEN: the second check is OFF.';
+    document.querySelector('#mode')!.textContent = enforceRange ? 'The second check is ON — canonical S is required for acceptance.' : 'DELIBERATELY BROKEN: the second check is OFF.';
     document.querySelector('#mode')!.className = enforceRange ? 'mode' : 'mode alarm';
     document.querySelector('#repair-status')!.textContent = `${enforceRange ? 'Range rule enabled' : 'Range rule omitted'}. Canonical ${canonical.accepted ? 'accepted' : 'rejected'}; hostile ${hostile.accepted ? 'accepted' : 'rejected'} (${hostile.reason}); ordinary corruption ${negative.accepted ? 'accepted' : 'rejected'}. Same pinned signature bytes.`;
 
@@ -307,10 +333,12 @@ async function run(): Promise<void> {
 /* Exhibit 04. The count of encodable multiples is computed from S and L here,
    and the page states the number it computed rather than a number anyone typed. */
 async function renderForge(enforceRange: boolean, g: number): Promise<void> {
+  retireForge();
+  const mine = forgeGeneration;
   const k = Number(forgeK.value);
   const signature = forged(k);
   const r = await verify(unhex(f.publicKey), unhex(f.message), signature, enforceRange);
-  if (g !== generation) return;
+  if (g !== generation || mine !== forgeGeneration) return;
   document.querySelector('#forge-k-value')!.textContent = String(k);
   document.querySelector('#forge-scalar')!.textContent = (S_CANONICAL + BigInt(k) * L).toString();
   document.querySelector('#forge-signature')!.textContent = hex(signature);
@@ -326,13 +354,19 @@ async function renderForge(enforceRange: boolean, g: number): Promise<void> {
 /* Exhibit 05. The verifier already distinguishes its rejection causes; this
    surfaces which one fired for a byte the learner chose. */
 async function renderSurgery(enforceRange: boolean, g: number): Promise<void> {
-  const index = Math.min(63, Math.max(0, Number(surgeryIndex.value) || 0));
-  const value = Math.min(255, Math.max(0, Number(surgeryValue.value) || 0));
+  retireSurgery();
+  const mine = surgeryGeneration;
+  const index = byteInput(surgeryIndex, 63);
+  const value = byteInput(surgeryValue, 255);
+  if (index === undefined || value === undefined) {
+    document.querySelector('#surgery-readout')!.textContent = 'Enter a whole-number byte index from 0 to 63 and a whole-number value from 0 to 255. No signature was checked.';
+    return;
+  }
   const signature = unhex(f.canonical);
   const original = signature[index];
   signature[index] = value;
   const r = await verify(unhex(f.publicKey), unhex(f.message), signature, enforceRange);
-  if (g !== generation) return;
+  if (g !== generation || mine !== surgeryGeneration) return;
   const untouched = original === value;
   const half = index < 32 ? 'R half (bytes 0–31)' : 'S half (bytes 32–63)';
   document.querySelector('#surgery-result')!.innerHTML = resultMarkup(`Byte ${index} of 64 · ${half}`, r, !untouched);
@@ -381,7 +415,7 @@ function resolvePrediction(): void {
   box.replaceChildren(heading, chosenLine, verdictLine, closingLine);
 }
 
-document.querySelector('#scope-reveal')!.addEventListener('click', () => {
+function gradeScope(): void {
   let right = 0;
   for (const item of EVIDENCE_ITEMS) {
     const chosen = document.querySelector<HTMLInputElement>(`input[name="scope-${item.id}"]:checked`);
@@ -396,6 +430,10 @@ document.querySelector('#scope-reveal')!.addEventListener('click', () => {
   score.textContent = `${right} of ${EVIDENCE_ITEMS.length} matched. The full evidence table is below.`;
   score.setAttribute('data-score', String(right));
   document.querySelector<HTMLElement>('#evidence-cards')!.hidden = false;
+}
+document.querySelector('#scope-reveal')!.addEventListener('click', gradeScope);
+document.querySelector('#scope-exercise')!.addEventListener('change', () => {
+  if (!document.querySelector<HTMLElement>('#evidence-cards')!.hidden) gradeScope();
 });
 
 repair.addEventListener('change', () => { app.dataset.ready = 'false'; void run(); });
@@ -412,7 +450,8 @@ enterBroken.addEventListener('click', () => {
 forgeK.addEventListener('input', () => { void renderForge(repair.checked, generation); });
 for (const el of [surgeryIndex, surgeryValue]) el.addEventListener('input', () => { void renderSurgery(repair.checked, generation); });
 document.querySelector('#surgery-reset')!.addEventListener('click', () => {
-  surgeryValue.value = String(unhex(f.canonical)[Math.min(63, Math.max(0, Number(surgeryIndex.value) || 0))]);
+  const index = byteInput(surgeryIndex, 63);
+  if (index !== undefined) surgeryValue.value = String(unhex(f.canonical)[index]);
   void renderSurgery(repair.checked, generation);
 });
 for (const input of document.querySelectorAll<HTMLInputElement>('input[name="prediction"]')) input.addEventListener('change', () => {

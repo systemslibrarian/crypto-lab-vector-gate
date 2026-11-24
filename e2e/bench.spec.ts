@@ -161,7 +161,7 @@ test('bench: it is independent of the switch above, and carries its status and l
   const status = page.locator('#bench-status');
   await expect(status).toContainText('As of November 2026, NGCC is in its first round');
   await expect(status).toContainText('Every implementation below is modelled');
-  await expect(status).toContainText('Nothing in round one is standardized or deployed');
+  await expect(status).toContainText('Round-one candidacy does not establish standardization or suitability for deployment');
   // The one finding the primary report classes as design is labelled as such.
   await expect(card(page, 'challenge-read-mod-2').locator('.bench-model')).toContainText('classed there as design');
   await expect(card(page, 'verifier-returns-success').locator('.bench-model')).toContainText('classed there as implementation');
